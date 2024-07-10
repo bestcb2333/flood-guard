@@ -7,22 +7,35 @@ import (
 )
 
 var tables = []any{
-	new(User), new(FloodEvent), new(HistoryData), new(AlertRecord),
+	new(User),
+	new(Region),
+	new(FloodEvent),
+	new(HistoryData),
+	new(RequestLog),
 }
 
 // 用户表
 type User struct {
 	gorm.Model
-	Username string
-	Password string
-	Email    string
-	Admin    bool
+	Username  string
+	Password  string
+	Email     string
+	Telephone string
+	Admin     bool
+}
+
+// 区域表
+type Region struct {
+	gorm.Model
+	Name        string
+	FloodEvent  []FloodEvent
+	HistoryData []HistoryData
 }
 
 // 内涝事件
 type FloodEvent struct {
 	gorm.Model
-	Location    string
+	Region
 	StartTime   time.Time
 	EndTime     time.Time
 	Severity    string
@@ -31,21 +44,14 @@ type FloodEvent struct {
 
 // 历史数据
 type HistoryData struct {
-	gorm.Model
-	Location   string
+	ID         uint
+	RecordTime time.Time
+	Region
 	RainFall   float64
 	WaterLevel float64
-	Date       time.Time `gorm:"type:date"`
 }
 
-// 预警记录
-type AlertRecord struct {
-	gorm.Model
-	AlertTime  time.Time
-	AlertLevel string
-	Message    string
-}
-
+// 请求日志
 type RequestLog struct {
 	ID          uint
 	CreatedAt   time.Time
