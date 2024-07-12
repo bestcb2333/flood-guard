@@ -11,10 +11,10 @@ import (
 // 查询历史记录
 func GetHistoryData(c *gin.Context) {
 
-	query := DB.Model(new(db.HistoryData)).Joins("Region").Preload("Region")
+	query := DB.Model(new(db.HistoryData))
 
 	if region := c.Query("region"); region != "" {
-		query = query.Where("region.name = ?", region)
+		query = query.Where("region_id = ?", region)
 	}
 
 	if startTime, err := time.Parse(
