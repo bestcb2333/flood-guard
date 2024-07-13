@@ -10,7 +10,8 @@ func Router() {
 
 	r := gin.Default()
 
-	r.POST("/login", handler.Login)
+	r.GET("/captcha", handler.GetCaptcha)
+	r.POST("/login", handler.AuthCaptcha, handler.Login)
 	r.POST("/signup", handler.Signup)
 
 	r.GET("/get/user", handler.GetUser)

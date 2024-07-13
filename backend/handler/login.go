@@ -8,22 +8,25 @@ import (
 
 func Login(c *gin.Context) {
 
-	username := c.Query("username")
-	password := c.Query("password")
-	if username == "" || password == "" {
+	var request struct {
+		Username string
+		Password string
+	}
+
+	if request.Username == "" || request.Password == "" {
 		util.Error(c, 400, "请提供完整的用户名和密码", nil)
 		return
 	}
 
 	var user db.User
 	if err := DB.First(
-		&user, "username = ?", username,
+		&user, "username = ?", request.Username,
 	).Error; err != nil {
 		util.HandleQueryErr(c, "你尚未注册", nil)
 		return
 	}
 
-	if user.Password != password {
+	if user.Password != request.Password {
 		util.Error(c, 400, "密码不正确", nil)
 		return
 	}
