@@ -8,6 +8,6 @@ import (
 var DB *gorm.DB
 
 // 初始化接口包
-func HandlerInit() {
+func Init() {
 	DB = database.DB
 }

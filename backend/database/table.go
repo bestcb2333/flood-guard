@@ -13,6 +13,8 @@ var tables = []any{
 	new(HistoryData),
 	new(Notice),
 	new(Comment),
+	new(Sensor),
+	new(SensorStatus),
 	new(RequestLog),
 }
 
@@ -35,6 +37,7 @@ type Region struct {
 	Description string
 	FloodEvent  []FloodEvent  `gorm:"foreignKey:RegionID;references:ID"`
 	HistoryData []HistoryData `gorm:"foreignKey:RegionID;references:ID"`
+	SensorList  []Sensor      `gorm:"foreignKey:RegionID;references:ID"`
 }
 
 // 内涝事件
@@ -83,6 +86,27 @@ type Comment struct {
 	User    User `gorm:"foreignKey:Author;references:ID"`
 	Author  uint `json:"-"`
 	Content string
+	Related string
+}
+
+// 传感器
+type Sensor struct {
+	gorm.Model
+	Name        string
+	Location    string
+	Description string
+	Region      Region `gorm:"foreignKey:RegionID;references:ID"`
+	RegionID    uint
+}
+
+// 传感器状态
+type SensorStatus struct {
+	ID          uint
+	Time        time.Time
+	Sensor      Sensor `gorm:"foreignKey:SensorID;references:ID"`
+	SensorID    uint
+	status      string
+	Description string
 }
 
 // 请求日志

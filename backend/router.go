@@ -14,12 +14,7 @@ func Router() {
 	r.POST("/login", handler.AuthCaptcha, handler.Login)
 	r.POST("/signup", handler.Signup)
 
-	r.GET("/get/user", handler.GetUser)
-	r.GET("/get/region", handler.GetRegion)
-	r.GET("/get/floodevent", handler.GetFloodEvent)
-	r.GET("/get/historydata", handler.GetHistoryData)
-	r.GET("/get/notice", handler.GetNotice)
-
+	r.GET("/get/*any", handler.SelectRecord)
 	r.POST("/edit/*any", handler.EditRecord)
 	r.POST("/delete/*any", handler.DeleteRecord)
 
