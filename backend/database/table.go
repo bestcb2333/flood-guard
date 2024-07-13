@@ -12,6 +12,7 @@ var tables = []any{
 	new(FloodEvent),
 	new(HistoryData),
 	new(Notice),
+	new(Comment),
 	new(RequestLog),
 }
 
@@ -21,7 +22,7 @@ type User struct {
 	Username      string
 	Password      string
 	Email         string
-	Telephone     string
+	Profile       string
 	Admin         bool
 	NoticeWrited  []Notice     `gorm:"foreignKey:Writer;references:ID"`
 	EventUploaded []FloodEvent `gorm:"foreignKey:Uploader;references:ID"`
@@ -31,6 +32,7 @@ type User struct {
 type Region struct {
 	gorm.Model
 	Name        string
+	Description string
 	FloodEvent  []FloodEvent  `gorm:"foreignKey:RegionID;references:ID"`
 	HistoryData []HistoryData `gorm:"foreignKey:RegionID;references:ID"`
 }
@@ -45,26 +47,41 @@ type FloodEvent struct {
 	User        User `gorm:"foreignKey:Uploader;references:ID"`
 	Uploader    uint `json:"-"`
 	Severity    string
+	Position    string
 	Description string
+	Comment     []Comment `gorm:"foreignKey:Author;references:ID"`
 }
 
 // 历史数据
 type HistoryData struct {
-	ID         uint
-	RecordTime time.Time
-	Region     Region `gorm:"foreignKey:RegionID;references:ID"`
-	RegionID   uint
-	RainFall   float64
-	WaterLevel float64
-	Velocity   float64
+	ID          uint
+	RecordTime  time.Time
+	Region      Region `gorm:"foreignKey:RegionID;references:ID"`
+	RegionID    uint
+	RainFall    float64
+	WaterLevel  float64
+	Velocity    float64
+	Temperature float64
+	Humidity    float64
+	DataSource  string
 }
 
 // 通知公告
 type Notice struct {
 	gorm.Model
-	User    User `gorm:"foreignKey:Writer;references:ID"`
+	User        User `gorm:"foreignKey:Author;references:ID"`
+	Author      uint `json:"-"`
+	Title       string
+	Content     string
+	Importrance int
+	Comment     []Comment `gorm:"foreignKey:Author;references:ID"`
+}
+
+// 用户评论
+type Comment struct {
+	gorm.Model
+	User    User `gorm:"foreignKey:Author;references:ID"`
 	Author  uint `json:"-"`
-	Title   string
 	Content string
 }
 
@@ -75,4 +92,6 @@ type RequestLog struct {
 	ClientIP  string
 	Path      string
 	status    int
+	Method    string
+	UserID    uint
 }

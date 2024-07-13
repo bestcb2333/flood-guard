@@ -35,10 +35,9 @@ func Login(c *gin.Context) {
 	}
 
 	util.Info(c, 200, "登录成功", gin.H{
-		"token":     token,
-		"username":  user.Username,
-		"admin":     user.Admin,
-		"telephone": user.Telephone,
-		"email":     user.Email,
+		"token":    token,
+		"username": user.Username,
+		"admin":    user.Admin,
+		"email":    user.Email,
 	})
 }
