@@ -20,61 +20,61 @@
 ## 接口相关
 下面的响应体均为{"msg": "消息", "data": 内容}里的内容部分。
 ### POST /login 登录
-请求体 application/json
-  CaptchaID string
-  CaptchaValue string
-  Username string
-  Password string
-响应体 application/json
-  token string
-  username string
-  admin bool
-  email string
+* 请求体 application/json
+  * CaptchaID string
+  * CaptchaValue string
+  * Username string
+  * Password string
+* 响应体 application/json
+  * token string
+  * username string
+  * admin bool
+  * email string
 ### POST /signup 注册
-请求体 application/json
-  Username string
-  Password string
-  Email string
-  Authcode string 邮箱验证码
-响应体 application/json
-  token string
-  username string
-  admin bool
-  email string
+* 请求体 application/json
+  * Username string
+  * Password string
+  * Email string
+  * Authcode string 邮箱验证码
+* 响应体 application/json
+  * token string
+  * username string
+  * admin bool
+  * email string
 ### GET /get/user 获取用户列表
-请求头
-  admin bool 仅筛选是否管理员（可选项）
-响应体
-  用户表的对象数组，对象的格式即为数据库表里的对应格式。
+* 请求头
+  * admin bool 仅筛选是否管理员（可选项）
+* 响应体
+  * 用户表的对象数组，对象的格式即为数据库表里的对应格式。
 ### GET /get/region 获取地区列表
-响应体
-  地区表的对象数组，对象的格式即为数据库表里的对应格式。
+* 响应体
+  * 地区表的对象数组，对象的格式即为数据库表里的对应格式。
 ### GET /get/floodevent 获取内涝事件列表
-请求头
-  region int 筛选特定地区，提供地区ID（可选）
-  from string 筛选起始时间，格式2006-01-02 15:04:05（可选）
-  to string 筛选结束时间，格式2006-01-02 15:04:05（可选）
-  uploader int 筛选上传者，提供用户ID（可选）
-  severity string 筛选严重等级（可选）
-  page int 页码（可选）
-  limit int 每页数量（可选）
-响应体
-  内涝事件表的对象数组，对象的格式即为数据库表里的对应格式。
+* 请求头
+  * region int 筛选特定地区，提供地区ID（可选）
+  * from string 筛选起始时间，格式2006-01-02 15:04:05（可选）
+  * to string 筛选结束时间，格式2006-01-02 15:04:05（可选）
+  * uploader int 筛选上传者，提供用户ID（可选）
+  * severity string 筛选严重等级（可选）
+  * page int 页码（可选）
+  * limit int 每页数量（可选）
+* 响应体
+  * 内涝事件表的对象数组，对象的格式即为数据库表里的对应格式。
 ### GET /get/historydata 获取历史记录列表
-请求头
-  region int 筛选特定地区，提供地区ID（可选）
-  from string 筛选起始时间，格式2006-01-02 15:04:05（可选）
-  to string 筛选结束时间，格式2006-01-02 15:04:05（可选）
-  page int 页码（可选）
-  limit int 每页数量（可选）
-响应体
-  历史记录表的对象数组，对象的格式即为数据库表里的对应格式。
+* 请求头
+  * region int 筛选特定地区，提供地区ID（可选）
+  * from string 筛选起始时间，格式2006-01-02 15:04:05（可选）
+  * to string 筛选结束时间，格式2006-01-02 15:04:05（可选）
+  * page int 页码（可选）
+  * limit int 每页数量（可选）
+* 响应体
+  * 历史记录表的对象数组，对象的格式即为数据库表里的对应格式。
 ### GET /get/notice 获取公告列表
-请求头
-  title string 标题（可选）
-  author int 作者ID（可选）
-  page int 页码（可选）
-  limit int 每页数量（可选）
-响应体
-  公告记录表的对象数组，对象的格式即为数据库表里的对应格式。
+* 请求头
+  * title string 标题（可选）
+  * author int 作者ID（可选）
+  * page int 页码（可选）
+  * limit int 每页数量（可选）
+* 响应体
+  * 公告记录表的对象数组，对象的格式即为数据库表里的对应格式。
 
