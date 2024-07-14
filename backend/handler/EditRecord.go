@@ -10,9 +10,14 @@ import (
 )
 
 var insertActionMap = map[string]any{
-	"notice":     database.Notice{},
-	"floodevent": database.FloodEvent{},
-	"region":     database.Region{},
+	"user":         database.User{},
+	"region":       database.Region{},
+	"floodevent":   database.FloodEvent{},
+	"historydata":  database.HistoryData{},
+	"notice":       database.Notice{},
+	"comment":      database.Comment{},
+	"sensor":       database.Sensor{},
+	"sensorstatus": database.SensorStatus{},
 }
 
 func EditRecord(c *gin.Context) {
@@ -23,7 +28,7 @@ func EditRecord(c *gin.Context) {
 		return
 	}
 
-	path := c.Request.URL.Path[6:]
+	path := c.Param("path")
 	action := insertActionMap[path]
 
 	if !viper.GetBool(fmt.Sprintf("permission.%s", path)) {

@@ -10,11 +10,14 @@ import (
 )
 
 var deleteActionMap = map[string]any{
-	"user":        database.User{},
-	"region":      database.Region{},
-	"floodevent":  database.FloodEvent{},
-	"historydata": database.HistoryData{},
-	"notice":      database.Notice{},
+	"user":         database.User{},
+	"region":       database.Region{},
+	"floodevent":   database.FloodEvent{},
+	"historydata":  database.HistoryData{},
+	"notice":       database.Notice{},
+	"comment":      database.Comment{},
+	"sensor":       database.Sensor{},
+	"sensorstatus": database.SensorStatus{},
 }
 
 func DeleteRecord(c *gin.Context) {
@@ -25,7 +28,7 @@ func DeleteRecord(c *gin.Context) {
 		return
 	}
 
-	path := c.Request.URL.Path[8:]
+	path := c.Param("path")
 	if !viper.GetBool(fmt.Sprintf("permission.%s", path)) {
 		if !user.Admin {
 			util.Error(c, 400, "只有管理员才能删除数据", nil)

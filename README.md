@@ -10,6 +10,7 @@ That's the code of my graduation project, unfinished yet.
 * 数据可视化页面：展示各种数据图表。
 * 数据查询页面：可以查询数据，比如历史降水记录，内涝记录等。
 * 数据修改页面：可以上传数据，修改或删除数据。
+* 智能分析：调用ChatGPT API，传入用户问题和相关数据得到智能分析建议。
 * 接口文档，提供关于如何调用api上传数据的说明。
 * 个人页面：如果登录，则与个人信息相关；如果未登录，则要求登录。
 ## 逻辑相关
@@ -21,6 +22,7 @@ That's the code of my graduation project, unfinished yet.
 * 历史数据，包括字段：ID int，记录时间datetime，地区ID int，降水量float，水位float，流速float，气温float，湿度float，数据源string。
 * 通知公告，包括字段：ID int，作者ID int，标题string，内容string，重要性int。
 * 用户评论，包括字段：ID int，作者ID int，内容string，关联的表（公告或事件）string，关联的数据ID。
+* 传感器列表，包括字段：ID int，名称string，位置string，描述string，区域ID int。
 ## 接口相关
 下面的响应体均为{"msg": "消息", "data": 内容}里的内容部分。
 ### POST /login 登录

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"reflect"
 	"strconv"
 	"strings"
 	"time"
@@ -11,15 +12,8 @@ import (
 )
 
 var SelectActionMap = map[string]map[string]string{
-	"sensor": {
-		"string": "status name",
-		"int":    "region",
-	},
-	"sensorstatus": {
-		"from":   "time",
-		"to":     "time",
-		"int":    "sensor",
-		"string": "status",
+	"user": {
+		"bool": "admin",
 	},
 	"floodevent": {
 		"from":   "start_time",
@@ -36,44 +30,48 @@ var SelectActionMap = map[string]map[string]string{
 		"string": "title",
 		"int":    "author",
 	},
-	"user": {
-		"bool": "admin",
+	"comment": {
+		"string": "related",
+		"int":    "author",
 	},
+	"sensor": {
+		"string": "status name",
+		"int":    "region",
+	},
+	"sensorstatus": {
+		"from":   "time",
+		"to":     "time",
+		"int":    "sensor",
+		"string": "status",
+	},
+}
+
+var SelectTableMap = map[string]any{
+	"user":         make([]database.User, 1),
+	"region":       make([]database.Region, 1),
+	"floodevent":   make([]database.FloodEvent, 1),
+	"historydata":  make([]database.HistoryData, 1),
+	"notice":       make([]database.Notice, 1),
+	"comment":      make([]database.Comment, 1),
+	"sensor":       make([]database.Sensor, 1),
+	"sensorstatus": make([]database.SensorStatus, 1),
 }
 
 func SelectRecord(c *gin.Context) {
 
-	action := c.Request.URL.Path[5:]
+	action := c.Param("path")
 	actionMap := SelectActionMap[action]
-	query := DB
-	var data any
-
-	switch action {
-	case "sensor":
-		data = make([]database.Sensor, 0)
-		query = query.Model(new(database.Sensor))
-	case "sensorstatus":
-		data = make([]database.SensorStatus, 0)
-		query = query.Model(new(database.SensorStatus))
-	case "floodevent":
-		data = make([]database.FloodEvent, 0)
-		query = query.Model(new(database.FloodEvent))
-	case "historydata":
-		data = make([]database.HistoryData, 0)
-		query = query.Model(new(database.HistoryData))
-	case "notice":
-		data = make([]database.Notice, 0)
-		query = query.Model(new(database.Notice))
-	case "region":
-		data = make([]database.Region, 0)
-		query = query.Model(new(database.Region))
-	case "user":
-		data = make([]database.User, 0)
-		query = query.Model(new(database.User))
-	default:
-		util.Error(c, 400, "无效的查询类型", nil)
+	v := reflect.ValueOf(SelectTableMap[action])
+	if v.Kind() != reflect.Slice {
+		util.Error(c, 400, "路径不存在", nil)
 		return
 	}
+	query := DB.Model(v.Index(0).Interface())
+	dataReflect := reflect.MakeSlice(
+		reflect.SliceOf(v.Type().Elem()), 0, 0,
+	)
+	reflect.Copy(dataReflect, v)
+	data := dataReflect.Interface()
 
 	if actionMap != nil {
 
@@ -136,10 +134,18 @@ func SelectRecord(c *gin.Context) {
 		}
 	}
 
+	if order := c.Query("order"); order != "" {
+		query = query.Order(order)
+	}
+
 	if err := query.Find(&data).Error; err != nil {
 		util.HandleQueryErr(c, "无法找到符合条件的记录", err)
 		return
 	}
 
-	util.Info(c, 200, "查询成功", data)
+	c.AbortWithStatusJSON(200, gin.H{
+		"msg":   "查询成功",
+		"count": dataReflect.Len(),
+		"data":  data,
+	})
 }

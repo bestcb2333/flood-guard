@@ -11,12 +11,13 @@ func Router() {
 	r := gin.Default()
 
 	r.GET("/captcha", handler.GetCaptcha)
+	r.GET("/email", handler.GetMail)
 	r.POST("/login", handler.AuthCaptcha, handler.Login)
 	r.POST("/signup", handler.Signup)
 
-	r.GET("/get/*any", handler.SelectRecord)
-	r.POST("/edit/*any", handler.EditRecord)
-	r.POST("/delete/*any", handler.DeleteRecord)
+	r.GET("/get/:path", handler.SelectRecord)
+	r.POST("/edit/:path", handler.EditRecord)
+	r.POST("/delete/:path", handler.DeleteRecord)
 
 	if viper.GetBool("useSSL") {
 		r.RunTLS(
