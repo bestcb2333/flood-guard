@@ -35,6 +35,7 @@ type Region struct {
 	gorm.Model
 	Name        string
 	Description string
+	Scope       string
 	FloodEvent  []FloodEvent  `gorm:"foreignKey:RegionID;references:ID"`
 	HistoryData []HistoryData `gorm:"foreignKey:RegionID;references:ID"`
 	SensorList  []Sensor      `gorm:"foreignKey:RegionID;references:ID"`
@@ -93,7 +94,8 @@ type Comment struct {
 type Sensor struct {
 	gorm.Model
 	Name        string
-	Location    string
+	Abscissa    float64
+	Ordinate    float64
 	Description string
 	Region      Region `gorm:"foreignKey:RegionID;references:ID"`
 	RegionID    uint
