@@ -1,8 +1,4 @@
 <template>
-  <div class="w-100 h-100 d-flex justify-content-between">
-    <NAVLEFT style="width: 200px;"/>
-    <div class="flex-grow-1">主体内容</div>
-  </div>
 </template>
 
 <script>
