@@ -54,6 +54,9 @@ importers:
       '@vue/eslint-config-typescript':
         specifier: ^13.0.0
         version: 13.0.0(eslint-plugin-vue@9.27.0(eslint@8.57.0))(eslint@8.57.0)(typescript@5.4.5)
+      '@vue/runtime-core':
+        specifier: ^3.4.31
+        version: 3.4.31
       '@vue/tsconfig':
         specifier: ^0.5.1
         version: 0.5.1

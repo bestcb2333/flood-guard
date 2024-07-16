@@ -7,12 +7,12 @@ import 'bootstrap/dist/css/bootstrap.css'
 import 'element-plus/dist/index.css'
 
 import App from './App.vue'
-import router from './router'
+import router from './router/index.ts'
 
 const app = createApp(App)
 app.use(ElementPlus, { locale: zhCn })
 Object.keys(ElementPlusIconsVue).forEach(key => {
-  app.component(key, (ElementPlusIconsVue as Record<string, any>)[key])
+  app.component(key, ElementPlusIconsVue[key])
 })
 
 app.use(createPinia())
