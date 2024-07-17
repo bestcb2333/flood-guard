@@ -4,6 +4,7 @@ import ElementPlus from 'element-plus'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-icons/font/bootstrap-icons.css'
 import 'element-plus/dist/index.css'
 
 import App from './App.vue'

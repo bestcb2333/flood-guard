@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { routes } from '@/router/index'
-import { View, Hide } from '@element-plus/icons-vue'
+import { View, Hide, Ship } from '@element-plus/icons-vue'
 
 const isCollapsed = reactive({ value: false })
 
 </script>
 
 <template>
-  <div class="w-100 h-100 d-flex">
+  <div class="w-100 h-100 d-flex user-select-none">
 
 		<!-- 左侧导航栏 -->
 		<el-menu default-active="1" :collapse="isCollapsed.value"
-			 class="bg-primary-subtle" style="user-select: none;"
+			 class="bg-primary-subtle"
 			>
 
 			<!-- 左上角LOGO -->
-			<div class="text-center p-3">
+			<div class="text-center my-4">
 				<div v-if="!isCollapsed.value">FloodGuard</div>
-				<div v-else="isCollapsed.value">FG</div>
+				<el-icon v-else="isCollapsed.value"><Ship /></el-icon>
 			</div>
 
 			<!-- 导航栏菜单的每个元素 -->
@@ -26,9 +26,9 @@ const isCollapsed = reactive({ value: false })
 				:to="item.path" custom v-slot="{ navigate, isActive }"
 			>
 				<el-menu-item :index="index" @click="navigate"
-					:class="{'is-active bg-primary text-light': isActive}"
-					style="border-radius: 10px; margin: 5px 5px;"
-				>  
+					:class="{'is-active bg-primary text-light fw-bold': isActive}"
+					style="border-radius: 15px;"
+				>
 				  <el-icon><component :is="item.icon" /></el-icon>
 				  <span>{{ item.name }}</span>
 				</el-menu-item>
@@ -47,7 +47,7 @@ const isCollapsed = reactive({ value: false })
 		</el-menu>
 
 		<!-- 右侧内容部分 -->
-    <div class="flex-grow-1 p-5 bg-body-tertiary">
+    <div class="flex-grow-1 p-4 bg-body-secondary">
       <RouterView />
     </div>
   </div>
