@@ -1,0 +1,86 @@
+.bgc-main {
+	background-color: var(--main);
+}
+
+.bgc-subtle {
+	background-color: var(--subtle);
+}
+
+.bgc-bg {
+	background-color: var(--bg);
+}
+
+.bgc-container {
+	background-color: var(--container);
+}
+
+.bgc-card {
+	background-color: var(--card);
+}
+
+.color-main {
+	color: var(--main);
+}
+
+.color-subtle {
+	color: var(--subtle);
+}
+
+.color-bg {
+	color: var(--bg);
+}
+
+.color-container {
+	color: var(--container);
+}
+
+.color-card {
+	color: var(--card);
+}
+:root {
+	--main: #0d6efd;
+	--subtle: #cfe2ff;
+	--bg: #e9ecef;
+	--container: #f8f9fa;
+	--card: #ffffff;
+}
+
+[theme="secondary"] {
+	--main: #6c757d;
+	--subtle: #e2e3e5;
+	--bg: #e9ecef;
+	--container: #f8f9fa;
+	--card: #ffffff;
+}
+
+[theme="success"] {
+	--main: #198754;
+	--subtle: #d1e7dd;
+	--bg: #e9ecef;
+	--container: #f8f9fa;
+	--card: #ffffff;
+}
+
+[theme="danger"] {
+	--main: #dc3545;
+	--subtle: #f8d7da;
+	--bg: #e9ecef;
+	--container: #f8f9fa;
+	--card: #ffffff;
+}
+
+[theme="warning"] {
+	--main: #ffc107;
+	--subtle: #fff3cd;
+	--bg: #e9ecef;
+	--container: #f8f9fa;
+	--card: #ffffff;
+}
+
+[theme="info"] {
+	--main: #0dcaf0;
+	--subtle: #cff4fc;
+	--bg: #e9ecef;
+	--container: #f8f9fa;
+	--card: #ffffff;
+}

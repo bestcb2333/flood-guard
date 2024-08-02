@@ -1,5 +1,6 @@
 <script setup>
 import Container from '@/components/Container.vue';
+import Header from '@/components/Header.vue';
 import {reactive} from 'vue';
 import { Box } from '@element-plus/icons-vue';
 import apiClient from '@/axios';
@@ -34,14 +35,13 @@ async function getNotice() {
 </script>
 
 <template>
-
-	<el-row :gutter="20" class="mb-4 mx-4 justify-content-end bg-light py-2 rounded">
-		<el-col v-for="(item, index) in head" :key="index" :span="3">
-			<a :href="item.link" :class="'bi text-decoration-none fw-medium ' + item.icon">
+	<Header right="true">
+		<span v-for="(item, index) in head" :key="index">
+			<a :href="item.link" :class="'bi text-decoration-none fw-medium mx-3 ' + item.icon">
 				&nbsp;{{ item.name }}
 			</a>
-		</el-col>
-	</el-row>
+		</span>
+	</Header>
 
 	<section class="text-center">
 		<h1>FloodGuard</h1>
@@ -49,7 +49,7 @@ async function getNotice() {
 	</section>
 
 	<el-row :gutter="25" class="my-4">
-		<el-col :span="16">
+		<el-col :xs="24" :sm="16">
 			<Container title="概览" :center="true">
 				<el-row>
 					<el-col v-for="(item, index) in data" :key="index" :span="6">
@@ -59,12 +59,12 @@ async function getNotice() {
 				</el-row>
 			</Container>
 		
-			<Container title="内涝地图" minHeight="100px" :center="true">
+			<Container title="内涝地图" minHeight="600px" :center="true">
 				<img src="../assets/map.jpg" style="height: 300px;" />
 			</Container>
 		</el-col>
 
-		<el-col :span="8">
+		<el-col :xs="24" :sm="8">
 			<Container title="公告" minHeight="400px">
 				<div v-if="notice.length === 0" class="text-center pt-5">
 					<el-icon size="100px"><Box /></el-icon>

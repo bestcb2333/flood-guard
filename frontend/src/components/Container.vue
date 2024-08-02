@@ -8,12 +8,12 @@ defineProps({
 </script>
 
 <template>
-	<div class="p-4 mb-3 bg-light rounded-4"	:style="{ minHeight: minHeight }">
+	<div class="p-4 mb-3 rounded-4 bgc-container"	:style="[{minHeight: minHeight}]">
 	  <h5 class="mb-3">
-			<el-icon class="me-1 text-primary"><Menu /></el-icon>
+			<el-icon class="me-1 color-main"><Menu /></el-icon>
 			{{ title }}
 		</h5>
-		<div :class="['', { 'text-center': center }]">
+		<div :class="[{ 'text-center': center }]">
 			<slot></slot>
 		</div>
 	</div>
