@@ -12,7 +12,7 @@ func VerifyJwt(c *gin.Context) (*db.User, error) {
 	JwtToken, err := jwt.Parse(
 		c.GetHeader("Authorization")[7:],
 		func(t *jwt.Token) (any, error) {
-			return []byte(viper.GetString("JwtKey")), nil
+			return []byte(viper.GetString("JWT_KEY")), nil
 		},
 	)
 	if err != nil {

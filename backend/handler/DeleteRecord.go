@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bestcb2333/FloodGuard/database"
 	"github.com/bestcb2333/FloodGuard/util"
@@ -29,7 +30,9 @@ func DeleteRecord(c *gin.Context) {
 	}
 
 	path := c.Param("path")
-	if !viper.GetBool(fmt.Sprintf("permission.%s", path)) {
+	if viper.GetString(
+		fmt.Sprintf("PERMISSION_%s", strings.ToUpper(path)),
+	) != "true" {
 		if !user.Admin {
 			util.Error(c, 400, "只有管理员才能删除数据", nil)
 			return

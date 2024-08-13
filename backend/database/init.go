@@ -18,11 +18,11 @@ func Init() {
 	// 连接数据库
 	if DB, err = gorm.Open(mysql.Open(fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		viper.GetString("db.user"),
-		viper.GetString("db.password"),
-		viper.GetString("db.host"),
-		viper.GetString("db.port"),
-		viper.GetString("db.dbname"),
+		viper.GetString("DB_USER"),
+		viper.GetString("DB_PASSWORD"),
+		viper.GetString("DB_HOST"),
+		viper.GetString("DB_PORT"),
+		viper.GetString("DB_NAME"),
 	))); err != nil {
 		log.Fatalf("数据库连接失败: %v\n", err)
 	}

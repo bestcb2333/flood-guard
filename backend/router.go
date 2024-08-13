@@ -19,11 +19,11 @@ func Router() {
 	r.POST("/edit/:path", handler.EditRecord)
 	r.POST("/delete/:path", handler.DeleteRecord)
 
-	if viper.GetBool("useSSL") {
+	if viper.GetString("SSL_ENABLE") == "true" {
 		r.RunTLS(
 			":"+viper.GetString("port"),
-			viper.GetString("ssl.cert"),
-			viper.GetString("ssl.key"),
+			viper.GetString("SSL_CERT"),
+			viper.GetString("SSL_KEY"),
 		)
 	} else {
 		r.Run(":" + viper.GetString("port"))

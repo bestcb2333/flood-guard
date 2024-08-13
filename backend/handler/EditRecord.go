@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/bestcb2333/FloodGuard/database"
 	"github.com/bestcb2333/FloodGuard/util"
@@ -31,7 +32,9 @@ func EditRecord(c *gin.Context) {
 	path := c.Param("path")
 	action := insertActionMap[path]
 
-	if !viper.GetBool(fmt.Sprintf("permission.%s", path)) {
+	if viper.GetString(
+		fmt.Sprintf("PERMISSION_%s", strings.ToUpper(path)),
+	) == "false" {
 		if !user.Admin {
 			util.Error(c, 400, "你不是管理员，无法执行此操作", nil)
 			return

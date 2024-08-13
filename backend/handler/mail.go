@@ -62,12 +62,14 @@ func GetMail(c *gin.Context) {
 		return
 	}
 
-	conf := viper.GetStringMapString("smtp")
-
 	if err := smtp.SendMail(
-		conf["server"]+":"+conf["port"],
-		smtp.PlainAuth("", conf["mail"], conf["password"], conf["server"]),
-		conf["mail"],
+		viper.GetString("SMTP_SERVER")+":"+viper.GetString("SMTP_PORT"),
+		smtp.PlainAuth("",
+			viper.GetString("SMTP_MAIL"),
+			viper.GetString("SMTP_PASSWORD"),
+			viper.GetString("SMTP_SERVER"),
+		),
+		viper.GetString("SMTP_MAIL"),
 		[]string{email},
 		mailBody,
 	); err != nil {
