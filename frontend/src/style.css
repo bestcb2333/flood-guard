@@ -84,3 +84,45 @@
 	--container: #f8f9fa;
 	--card: #ffffff;
 }
+
+
+.nav-galss{
+	/* padding: 10px; */
+	/* max-height: 100vh;
+	overflow-y: auto; */
+}
+
+.is-active{
+	color:#0d6efd !important;
+	box-shadow: 5px 2px 12px 1px rgba(0, 0, 0, 0.1);
+}
+
+.nav-btn{
+	transition: 0.2s ease;
+	&:hover{
+		background: #ffffff;
+		box-shadow: 5px 2px 12px 1px rgba(0, 0, 0, 0.1);
+	}
+	&:active{
+		box-shadow: inset 2px 2px 12px 1px rgba(0, 0, 0, 0.1);
+	}
+}
+
+.btn-collapseMenu{
+	width: calc(100% - 20px);
+	bottom: 10px;
+	transition: 0.2s ease;
+	&:hover{
+		background: #ffffff;
+		box-shadow: 5px 2px 12px 1px rgba(0, 0, 0, 0.1);
+	}
+	&:active{
+		box-shadow: inset 2px 2px 12px 1px rgba(0, 0, 0, 0.1);
+	}
+}
+
+.nav-home{
+	background: #ffffff;
+	transition: 0.2s ease;
+	box-shadow: 2px 2px 12px 1px rgba(0, 0, 0, 0.1);
+}

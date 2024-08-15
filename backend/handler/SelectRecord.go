@@ -93,7 +93,7 @@ func SelectRecord(c *gin.Context) {
 
 		if intSlice, ok := actionMap["int"]; ok {
 			for _, value := range strings.Split(intSlice, " ") {
-				if data, err := strconv.Atoi(c.Query(value)); err != nil {
+				if data, err := strconv.Atoi(c.Query(value)); err == nil {
 					query = query.Where(value+" = ?", data)
 				}
 			}

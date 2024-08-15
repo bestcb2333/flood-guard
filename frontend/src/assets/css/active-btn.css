@@ -1,0 +1,19 @@
+.active-btn{
+    color: #434343;
+	background: #f7f7f7;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 12px;
+    font-size: 0.9rem;
+    transition: 0.2s ease;
+    font-weight: bold;
+	&:hover{
+		background: #ffffff;
+        color:#0d6efd;
+		box-shadow: 5px 2px 12px 1px rgba(0, 0, 0, 0.1);
+	}
+	&:active{
+		box-shadow: inset 2px 2px 12px 1px rgba(0, 0, 0, 0.1);
+	}
+}

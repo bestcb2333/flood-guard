@@ -26,7 +26,7 @@ type User struct {
 	Email         string
 	Profile       string
 	Admin         bool
-	NoticeWrited  []Notice     `gorm:"foreignKey:Writer;references:ID"`
+	NoticeWritten []Notice     `gorm:"foreignKey:Author;references:ID"`
 	EventUploaded []FloodEvent `gorm:"foreignKey:Uploader;references:ID"`
 }
 

@@ -25,6 +25,10 @@ That's the code of my graduation project, unfinished yet.
 * 传感器列表，包括字段：ID int，名称string，位置string，描述string，区域ID int。
 ## 接口相关
 下面的响应体均为{"msg": "消息", "data": 内容}里的内容部分。
+### 测试服务器地址
+* 前端 https://flood.mcax.cn/
+* 后端 https://flood.mcax.cn/api/
+* 如果 mcax.cn 不可用，请替换成另一个保密域名
 ### POST /login 登录
 * 请求体 application/json
   * CaptchaID string
@@ -36,6 +40,10 @@ That's the code of my graduation project, unfinished yet.
   * username string
   * admin bool
   * email string
+### GET /captcha 获取人机验证码
+* 响应体是验证码图片
+* 响应头
+  * captchaID string
 ### POST /signup 注册
 * 请求体 application/json
   * Username string
@@ -47,6 +55,9 @@ That's the code of my graduation project, unfinished yet.
   * username string
   * admin bool
   * email string
+### GET /email 获取注册的邮件验证码
+* 查询字符串参数
+  * email string 收件人
 ### GET /get/user 获取用户列表
 * 查询字符串参数
   * admin bool 仅筛选是否管理员（可选项）

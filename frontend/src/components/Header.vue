@@ -1,16 +1,32 @@
-<script setup>
-import {inject} from 'vue';
-
-const toggleSidebarShow = inject('toggleSidebarShow')
-defineProps({ 'right': {
-	type: Boolean,
-	default: false,
-}})
-</script>
-
 <template>
-	<div :class="['d-flex align-items-center rounded mb-4 mx-4 p-2 bgc-container', {'justify-content-between': right}]">
-		<el-button @click="toggleSidebarShow" class="bi bi-list">菜单</el-button>
-		<div><slot></slot></div>
+	<div :class="['d-flex align-items-center rounded-3 mb-4 p-2 nav-home', {'justify-content-between': right}]">
+		<button @click="toggleSidebarShow" class="bi bi-list active-btn" text bg>菜单</button>
+		<div>
+			<slot></slot>
+		</div>
 	</div>
 </template>
+
+<script>
+
+import '../assets/css/active-btn.css'
+
+export default{
+    data(){
+		return{
+
+		}
+    },
+	props:{
+		right:{},
+		type: {},
+		default: {},
+	},
+	inject: ['toggleSidebarShow'],
+	methods:{
+		handleToggleSidebarShow(){
+			this.toggleSidebarShow()
+		}
+	}
+}
+</script>

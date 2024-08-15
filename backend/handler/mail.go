@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"html/template"
 	"net/smtp"
+	"os"
 	"time"
 
-	"github.com/bestcb2333/FloodGuard/asset"
 	db "github.com/bestcb2333/FloodGuard/database"
 	"github.com/bestcb2333/FloodGuard/util"
 	"github.com/gin-gonic/gin"
@@ -82,7 +82,18 @@ func GetMail(c *gin.Context) {
 // 生成邮件内容体的函数
 func getMailBody(maildata *MailData) ([]byte, error) {
 
-	tmpl, err := template.New("email").ParseFS(asset.FS, "email.html")
+	tmplPath := "/data/email.html"
+	var tmpl *template.Template
+	var err error
+
+	if _, err = os.Stat(tmplPath); err == nil {
+		tmpl, err = template.ParseFiles(tmplPath)
+	} else {
+		tmpl, err = template.New("default").Parse(`<html><body>
+				{{.Receiver}}，你的验证码是 {{.Authcode}}。
+				于{{.Expiration}}前有效，IP地址位于{{.Location}}。
+		</body></html>`)
+	}
 	if err != nil {
 		return nil, err
 	}
