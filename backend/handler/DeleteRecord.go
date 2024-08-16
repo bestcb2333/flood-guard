@@ -40,7 +40,7 @@ func DeleteRecord(c *gin.Context) {
 	}
 
 	var ids []uint
-	if err := c.ShouldBindJSON(&ids); err != nil {
+	if err := util.ParseJSON(c, &ids); err != nil {
 		util.Error(c, 400, "你提供的ID列表不正确", err)
 		return
 	}
@@ -51,4 +51,6 @@ func DeleteRecord(c *gin.Context) {
 		util.Error(c, 500, "数据删除失败", err)
 		return
 	}
+
+	util.Info(c, 200, "操作成功", nil)
 }

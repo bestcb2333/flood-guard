@@ -15,7 +15,7 @@ func Signup(c *gin.Context) {
 		Authcode string
 	}
 
-	if err := c.BindJSON(&request); err != nil {
+	if err := util.ParseJSON(c, &request); err != nil {
 		util.Error(c, 400, "无法读取你的请求", err)
 		return
 	}

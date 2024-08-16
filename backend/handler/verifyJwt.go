@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"errors"
+
 	db "github.com/bestcb2333/FloodGuard/database"
 	"github.com/bestcb2333/FloodGuard/util"
 	"github.com/gin-gonic/gin"
@@ -16,18 +18,16 @@ func VerifyJwt(c *gin.Context) (*db.User, error) {
 		},
 	)
 	if err != nil {
-		util.Error(c, 400, "token签名格式不正确!", nil)
-		return nil, err
+		return nil, errors.New("token签名格式不正确: " + err.Error())
 	}
 	claims, ok := JwtToken.Claims.(jwt.MapClaims)
 	if !ok || !JwtToken.Valid {
-		util.Error(c, 401, "token身份信息有误", nil)
-		return nil, err
+		return nil, errors.New("token身份信息有误")
 	}
 
 	var user db.User
 	if err := DB.First(
-		&user, claims["userId"].(uint),
+		&user, uint(claims["userId"].(float64)),
 	).Error; err != nil {
 		util.HandleQueryErr(c, "找不到用户", err)
 		return nil, err

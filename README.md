@@ -16,22 +16,26 @@ That's the code of my graduation project, unfinished yet.
 ## 逻辑相关
 * 查数据不要求登录；增、删、改数据要求登录且具有管理员权限。因此不必登录即可进入主页面，未登录或没有管理员权限不允许访问数据修改页面。
 ## 数据库表相关
-* 用户表，包括字段：ID int，用户名string，密码string，邮箱string，个人介绍string，是否管理员boolean。
-* 地区表，包括字段：ID int，地区名string，描述string。
-* 内涝事件，包括字段：ID int，区域ID int，开始时间datetime，结束时间datetime，上传者用户ID int，严重性string，具体位置string，描述string。
-* 历史数据，包括字段：ID int，记录时间datetime，地区ID int，降水量float，水位float，流速float，气温float，湿度float，数据源string。
-* 通知公告，包括字段：ID int，作者ID int，标题string，内容string，重要性int。
-* 用户评论，包括字段：ID int，作者ID int，内容string，关联的表（公告或事件）string，关联的数据ID。
-* 传感器列表，包括字段：ID int，名称string，位置string，描述string，区域ID int。
+* 下面的每个字段的描述都是“含义 命名 数据类型”格式，比如“用户名 Username string”。
+* int是整数，string是字符串，boolean是布尔值，timestring是有时间格式的字符串。float是小数
+* 用户表，包括字段：ID ID int，用户名 Username string，密码 Password string，邮箱 Email string，个人介绍 Profile string，是否管理员Admin boolean。
+* 地区表，包括字段：ID ID int，地区名 Name string，描述 Description string，坐标范围 Scope string。
+* 内涝事件，包括字段：ID ID int，区域ID RegionID int，开始时间 StartTime timestring，结束时间 EndTime timestring，上传者用户ID Uploader int，严重性 Severity string，具体位置 Positon string，描述 Description string。
+* 历史数据，包括字段：ID ID int，记录时间 RecordTime timestring，地区ID RegionID int，降水量 RainFall float，水位 WaterLevel float，流速 Velocity float，气温 Temperature float，湿度 Humidity float，数据源 DataSource string。
+* 通知公告，包括字段：ID ID int，作者ID Author int，标题 Title string，内容 Content string，重要性 Importrance int。
+* 用户评论，包括字段：ID ID int，作者ID Author int，内容 Content string，关联的表（公告或事件） Related string。
+* 传感器列表，包括字段：ID ID int，名称 Name string，横坐标 Abscissa float, 纵坐标 Ordinate float，描述 Description string，区域ID RegionID int。
+* 传感器状态，包括字段：ID ID int, 报告时间 Time timestring, 传感器ID SensorID int, 状态 Status string, 描述 Description string
 ## 接口相关
 下面的响应体均为{"msg": "消息", "data": 内容}里的内容部分。
+所有的后端路径都要以/api/开头，以和前端区分。例如人机验证码是/api/captcha
 ### 测试服务器地址
 * 前端 https://flood.mcax.cn/
 * 后端 https://flood.mcax.cn/api/
-* 如果 mcax.cn 不可用，请替换成另一个保密域名
+* 如果 mcax.cn 不可用，请替换成另一个保密域名和520端口
 ### POST /login 登录
 * 请求体 application/json
-  * CaptchaID string
+  * CaptchaId string
   * CaptchaValue string
   * Username string
   * Password string
@@ -58,6 +62,25 @@ That's the code of my graduation project, unfinished yet.
 ### GET /email 获取注册的邮件验证码
 * 查询字符串参数
   * email string 收件人
+
+### 关于增删改查
+* 路径一般是“/行为类型/数据类型”的格式
+* 带上“/api/”后即为“/api/行为类型/数据类型”格式
+* 行为类型有三种，分别是edit(增或改), get(查), delete(删)
+* 数据类型有八种，分别是
+* user(用户列表), region(区域列表), floodevent(内涝事件列表)
+* historydata(区域历史数据), notice(公告列表), comment(评论列表)
+* sensor(传感器列表), sensorstatus(传感器历史状态记录)
+* 例如, /api/get/region即为获取区域列表的路径
+* 例如, /api/delete/user即为删除用户
+* 例如, /api/edit/notice即为新增或编辑公告
+* 对于edit, 提供了id即为修改那个id的数据，没提供id则为新增数据
+* get是GET请求，edit和delete是POST请求
+* delete的请求体为application/json类型，内容为整数数组
+* 代表被删除的记录的id，例如[2, 3, 4]为删除id为2 3 4的记录
+* edit一次只能修改/添加一条数据，请求体为内容对应数据库表的对象
+* 对于get接口，可以在URL的查询参数里使用数据库字段来筛选。例如
+
 ### GET /get/user 获取用户列表
 * 查询字符串参数
   * admin bool 仅筛选是否管理员（可选项）

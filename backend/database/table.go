@@ -107,7 +107,7 @@ type SensorStatus struct {
 	Time        time.Time
 	Sensor      Sensor `gorm:"foreignKey:SensorID;references:ID"`
 	SensorID    uint
-	status      string
+	Status      string
 	Description string
 }
 

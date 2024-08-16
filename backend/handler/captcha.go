@@ -23,16 +23,16 @@ func GetCaptcha(c *gin.Context) {
 func AuthCaptcha(c *gin.Context) {
 
 	var request struct {
-		CaptchaID    string
+		CaptchaId    string
 		CaptchaValue string
 	}
 
-	if c.BindJSON(&request) != nil {
+	if util.ParseJSON(c, &request) != nil {
 		util.Error(c, 400, "无法读取你的请求", nil)
 		return
 	}
 
-	if !captcha.VerifyString(request.CaptchaID, request.CaptchaValue) {
+	if !captcha.VerifyString(request.CaptchaId, request.CaptchaValue) {
 		util.Error(c, 400, "验证码不正确", nil)
 		return
 	}

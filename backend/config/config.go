@@ -3,8 +3,9 @@ package config
 var Config = map[string]string{
 	"PORT":                   "8080",
 	"JWT_KEY":                "5201314",
+	"ADMIN_NAME":             "",
 	"SSL_ENABLE":             "false",
-	"SSL_CERT":               "cert.pem",
+	"SSL_CERTIFICATE":        "cert.pem",
 	"SSL_KEY":                "key.pem",
 	"DB_USER":                "floodguard",
 	"DB_PORT":                "3306",

@@ -13,6 +13,11 @@ func Login(c *gin.Context) {
 		Password string
 	}
 
+	if err := util.ParseJSON(c, &request); err != nil {
+		util.Error(c, 400, "用户请求读取失败", err)
+		return
+	}
+
 	if request.Username == "" || request.Password == "" {
 		util.Error(c, 400, "请提供完整的用户名和密码", nil)
 		return

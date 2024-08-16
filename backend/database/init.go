@@ -31,4 +31,19 @@ func Init() {
 	for _, value := range tables {
 		DB.AutoMigrate(value)
 	}
+
+	// 为管理员用户授权
+	if adminName := viper.GetString("ADMIN_NAME"); adminName != "" {
+		var admin User
+		if err := DB.First(
+			&admin, "username = ?", adminName,
+		).Error; err == nil {
+			if !admin.Admin {
+				DB.Model(&admin).Update("admin", true)
+				fmt.Printf("已经成功将%v设置为管理员\n", adminName)
+			}
+		} else {
+			fmt.Printf("无法为%v设置为管理员：%v\n", adminName, err.Error())
+		}
+	}
 }

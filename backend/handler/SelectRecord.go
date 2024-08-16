@@ -22,8 +22,8 @@ var SelectActionMap = map[string]map[string]string{
 		"string": "severity",
 	},
 	"historydata": {
-		"from": "record_time",
-		"to":   "record_time",
+		"from": "start_time",
+		"to":   "end_time",
 		"int":  "region",
 	},
 	"notice": {
@@ -39,8 +39,8 @@ var SelectActionMap = map[string]map[string]string{
 		"int":    "region",
 	},
 	"sensorstatus": {
-		"from":   "time",
-		"to":     "time",
+		"from":   "start_time",
+		"to":     "end_time",
 		"int":    "sensor",
 		"string": "status",
 	},
