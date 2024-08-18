@@ -78,7 +78,7 @@ That's the code of my graduation project, unfinished yet.
 
 #### 对于 /api/get/???
 * 对于get接口，可以在URL的查询参数里使用数据库字段来筛选。例如
-* 如果数据库里面有时间，可以用URL参数来根据时间筛选，键`start_time`指定起始时间，`end_time`指定结束时间，值格式为`YYYY-MM-DD hh-mm-ss`，对于其他的筛选条件，将数据库里的字段名作为URL参数的键，筛选的目标值作为值即可。
+* 如果数据库里面有时间，可以用URL参数来根据时间筛选，键`start_time`指定起始时间，`end_time`指定结束时间，值格式为`YYYY-MM-DD hh-mm-ss`，对于其他的筛选条件，将数据库里的字段名作为URL参数的键，筛选的目标值作为值即可，URL参数的键名用蛇形命名法，不知道准确的键名可以查数据库。
 
 #### 对于 /api/edit/????
 * 对于edit, 提供了id即为修改那个id的数据，没提供id则为新增数据
