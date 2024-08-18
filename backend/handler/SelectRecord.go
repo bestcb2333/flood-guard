@@ -57,6 +57,11 @@ var SelectTableMap = map[string]any{
 	"sensorstatus": make([]database.SensorStatus, 1),
 }
 
+type Field struct {
+	Key   string `json:"key"`
+	Title string `json:"title"`
+}
+
 func SelectRecord(c *gin.Context) {
 
 	action := c.Param("path")
@@ -67,8 +72,9 @@ func SelectRecord(c *gin.Context) {
 		return
 	}
 	query := DB.Model(v.Index(0).Interface())
+	structType := v.Type().Elem()
 	dataReflect := reflect.MakeSlice(
-		reflect.SliceOf(v.Type().Elem()), 0, 0,
+		reflect.SliceOf(structType), 0, 0,
 	)
 	reflect.Copy(dataReflect, v)
 	data := dataReflect.Interface()
@@ -143,9 +149,22 @@ func SelectRecord(c *gin.Context) {
 		return
 	}
 
+	fieldSlice := make([]Field, 0)
+	for i := 0; i < structType.NumField(); i++ {
+		field := structType.Field(i)
+		title := field.Tag.Get("gorm")
+		if strings.HasPrefix(title, "comment") {
+			fieldSlice = append(fieldSlice, Field{
+				Key:   strings.ToLower(field.Name),
+				Title: title[8:],
+			})
+		}
+	}
+
 	c.AbortWithStatusJSON(200, gin.H{
 		"msg":   "查询成功",
 		"count": dataReflect.Len(),
+		"field": fieldSlice,
 		"data":  data,
 	})
 }

@@ -1,7 +1,10 @@
 package main
 
 import (
+	"time"
+
 	"github.com/bestcb2333/FloodGuard/handler"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
 )
@@ -9,6 +12,16 @@ import (
 func Router() {
 
 	r := gin.Default()
+
+	//允许CORS跨域
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins:  true,
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"*"},
+		ExposeHeaders:    []string{"*"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	r.GET("/captcha", handler.GetCaptcha)
 	r.GET("/email", handler.GetMail)
