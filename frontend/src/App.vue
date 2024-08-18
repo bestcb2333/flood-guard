@@ -35,7 +35,8 @@
 </template>
   
 <script>
-import '@/style.css';
+import '@/style.css'
+import './js/css-doodle.min.js'
 // import { $router.options.routes } from '@/router/index.js'
 
 export default{

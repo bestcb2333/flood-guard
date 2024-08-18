@@ -23,8 +23,8 @@ func GetCaptcha(c *gin.Context) {
 func AuthCaptcha(c *gin.Context) {
 
 	var request struct {
-		CaptchaId    string
-		CaptchaValue string
+		CaptchaId    string `json:"captchaId"`
+		CaptchaValue string `json:"captchaValue"`
 	}
 
 	if util.ParseJSON(c, &request) != nil {

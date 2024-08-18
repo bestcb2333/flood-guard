@@ -37,7 +37,7 @@
 								<el-input size="large" v-model="ruleForm.password"></el-input>
 							</el-form-item>
 							<el-form-item class="mb-0">
-								<el-button size="large" class="w-100" color="#0d6dfd" @click="submitForm('ruleForm')">登录</el-button>
+								<el-button size="large" class="w-100" type="primary" @click="submitForm('ruleForm')">登录</el-button>
 							</el-form-item>
 							<el-form-item class="mt-2">
 								<small>没有账号？</small><el-button type="primary" link @click="()=>{logOrRes='res'}"><small>点我注册</small></el-button>
@@ -62,7 +62,7 @@
 								<el-input size="large" v-model="ruleForm.introduction"></el-input>
 							</el-form-item>
 							<el-form-item class="mb-0">
-								<el-button size="large" class="w-100" color="#0d6dfd" @click="submitForm('ruleForm')">注册</el-button>
+								<el-button size="large" class="w-100" type="primary" @click="submitForm('ruleForm')">注册</el-button>
 							</el-form-item>
 							<el-form-item class="mt-2">
 								<small>已有账号？</small><el-button type="primary" link @click="()=>{logOrRes='log'}"><small>点我登录</small></el-button>

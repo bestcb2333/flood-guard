@@ -36,7 +36,7 @@ const router = createRouter({
     },
     {
       path: '/edit',
-      name: '编辑数据',
+      name: '后台管理',
       icon: Files,
       component: () => import('../views/Edit.vue')
     },

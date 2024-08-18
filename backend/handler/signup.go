@@ -9,10 +9,10 @@ import (
 func Signup(c *gin.Context) {
 
 	var request struct {
-		Username string
-		Password string
-		Email    string
-		Authcode string
+		Username string `json:"username"`
+		Password string `json:"password"`
+		Email    string `json:"email"`
+		Authcode string `json:"authcode"`
 	}
 
 	if err := util.ParseJSON(c, &request); err != nil {
