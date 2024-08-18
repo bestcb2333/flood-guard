@@ -2,6 +2,61 @@
 
 That's the code of my graduation project, unfinished yet.
 
+# 部署相关
+* 前端可以编译后由Nginx服务静态文件，也可以通过Nginx的Docker镜像在容器里运行。后端只能在Docker容器里运行。
+* 下面的教程主要面向Linux发行版系统。
+
+## 对于前端用Nginx
+
+### 部署前端
+* 拉取前端代码，并编译：
+* `git clone https://github.com/bestcb2333/floodguard`
+* `cd frontend`
+* `npm install`
+* `npm run build`
+* 将编译后的静态文件移动到Nginx的监听目录：
+* `mv ./dist/ /var/www/floodguard/`
+* 编辑Nginx的配置文件：`vim /etc/nginx/nginx.conf`
+```nginx
+server {
+    listen 80;
+    server_name flood.yourdomain.com;
+    location / {
+        root /var/www/floodguard/;
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+* 重启Nginx：
+* `nginx -s reload`
+
+### 部署后端
+* 编写`docker-compose.yml`文件：`vim docker-compose.yml`
+```yaml
+services:
+  floodguard:
+    image: bestcb2333/floodguard
+    container_name: floodguard
+    network_mode: bridge
+    ports:
+      - 8080:8080
+    environment:
+      - ADMIN_NAME=your_admin_name # 管理员用户名
+      - SENSOR_PASSWORD=your_sensor_password # 传感器上传密码
+      - DB_USER=your_mysql_user # MySQL管理员用户名
+      - DB_HOST=your_mysql_ip_address # MySQL服务器地址
+      - DB_PORT=your_mysql_port # MySQL服务器端口
+      - DB_NAME=floodguard # MySQL数据库名
+      - DB_PASSWORD=your_mysql_user_password # MySQL管理员用户密码
+      - SMTP_MAIL=your_email@your_provider.com # 注册发件邮箱
+      - SMTP_PASSWORD=your_smtp_password # 邮箱接口密码
+      - SMTP_SERVER=smtp.your_server.com # SMTP服务器地址
+      - SMTP_PORT=25 # SMTP服务器端口
+    volumes:
+     - .:/data
+```
+* 启动容器，在docker.compose.yml所在目录输入`docker-compose up -d`
+
 # 开发文档
 ## 布局相关
 * 页面竖着割开，分为左右两栏，左侧为侧边栏导航菜单，余下右侧为各页面的内容。界面风格随意。
@@ -88,41 +143,3 @@ That's the code of my graduation project, unfinished yet.
 #### 对于 /api/delete/????
 * delete的请求体为application/json类型，内容为整数数组
 * 代表被删除的记录的id，例如[2, 3, 4]为删除id为2 3 4的记录
-
-### GET /get/user 获取用户列表
-* 查询字符串参数
-  * admin bool 仅筛选是否管理员（可选项）
-* 响应体
-  * 用户表的对象数组，对象的格式即为数据库表里的对应格式。
-### GET /get/region 获取地区列表
-* 响应体
-  * 地区表的对象数组，对象的格式即为数据库表里的对应格式。
-### GET /get/floodevent 获取内涝事件列表
-* 查询字符串参数
-  * region int 筛选特定地区，提供地区ID（可选）
-  * from string 筛选起始时间，格式2006-01-02 15:04:05（可选）
-  * to string 筛选结束时间，格式2006-01-02 15:04:05（可选）
-  * uploader int 筛选上传者，提供用户ID（可选）
-  * severity string 筛选严重等级（可选）
-  * page int 页码（可选）
-  * limit int 每页数量（可选）
-* 响应体
-  * 内涝事件表的对象数组，对象的格式即为数据库表里的对应格式。
-### GET /get/historydata 获取历史记录列表
-* 查询字符串参数
-  * region int 筛选特定地区，提供地区ID（可选）
-  * from string 筛选起始时间，格式2006-01-02 15:04:05（可选）
-  * to string 筛选结束时间，格式2006-01-02 15:04:05（可选）
-  * page int 页码（可选）
-  * limit int 每页数量（可选）
-* 响应体
-  * 历史记录表的对象数组，对象的格式即为数据库表里的对应格式。
-### GET /get/notice 获取公告列表
-* 查询字符串参数
-  * title string 标题（可选）
-  * author int 作者ID（可选）
-  * page int 页码（可选）
-  * limit int 每页数量（可选）
-* 响应体
-  * 公告记录表的对象数组，对象的格式即为数据库表里的对应格式。
-
