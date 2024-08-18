@@ -128,15 +128,14 @@ func SelectRecord(c *gin.Context) {
 			return
 		} else {
 			query = query.Limit(limit)
-		}
-	}
-
-	if rawOffset := c.Query("offset"); rawOffset != "" {
-		if offset, err := strconv.Atoi(rawOffset); err != nil {
-			util.Error(c, 400, "你提供的起始位置不正确", err)
-			return
-		} else {
-			query = query.Offset(offset)
+			if rawPage := c.Query("page"); rawPage != "" {
+				if page, err := strconv.Atoi(rawPage); err != nil {
+					util.Error(c, 400, "你提供的页码不正确", err)
+					return
+				} else {
+					query = query.Offset(limit * (page - 1))
+				}
+			}
 		}
 	}
 
