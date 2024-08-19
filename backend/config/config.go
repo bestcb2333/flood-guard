@@ -4,6 +4,7 @@ var Config = map[string]string{
 	"PORT":                   "8080",
 	"JWT_KEY":                "5201314",
 	"ADMIN_NAME":             "",
+	"GPT_ASST_ID":            "",
 	"SSL_ENABLE":             "false",
 	"SSL_CERTIFICATE":        "cert.pem",
 	"SSL_KEY":                "key.pem",

@@ -74,8 +74,12 @@ func (cb CustomBool) Value() (driver.Value, error) {
 
 func (cb *CustomBool) Scan(value any) error {
 	switch v := value.(type) {
-	case bool:
-		*cb = CustomBool(v)
+	case int64:
+		if v == 0 {
+			*cb = CustomBool(false)
+		} else {
+			*cb = CustomBool(true)
+		}
 		return nil
 	default:
 		return fmt.Errorf("无法读取%T类型", value)
@@ -168,116 +172,127 @@ func (ct *CustomTime) Scan(value any) error {
 
 // 用户表
 type User struct {
-	ID            CustomUint     `json:"id" gorm:"primaryKey"`
-	CreatedAt     time.Time      `json:"created_at" gorm:"comment:创建时间"`
-	UpdatedAt     time.Time      `json:"updated_at" gorm:"comment:记录更新时间"`
+	ID            CustomUint     `gorm:"primaryKey"`
+	CreatedAt     time.Time      `gorm:"comment:创建时间"`
+	UpdatedAt     time.Time      `gorm:"comment:记录更新时间"`
 	DeletedAt     gorm.DeletedAt `gorm:"index"`
-	Username      string         `json:"username" gorm:"comment:用户名"`
-	Password      string         `json:"password" gorm:"comment:密码"`
-	Email         string         `json:"email" gorm:"comment:邮箱"`
-	Profile       string         `json:"profile" gorm:"comment:个人简介"`
-	Admin         CustomBool     `json:"admin" gorm:"comment:是管理员"`
-	NoticeWritten []Notice       `json:"-" gorm:"foreignKey:Author;references:ID"`
-	EventUploaded []FloodEvent   `json:"-" gorm:"foreignKey:Uploader;references:ID"`
+	Username      string         `gorm:"comment:用户名"`
+	Password      string         `gorm:"comment:密码"`
+	Email         string         `gorm:"comment:邮箱"`
+	Profile       string         `gorm:"comment:个人简介"`
+	Admin         CustomBool     `gorm:"comment:是管理员"`
+	NoticeWritten []Notice       `gorm:"foreignKey:Author;references:ID"`
+	EventUploaded []FloodEvent   `gorm:"foreignKey:Uploader;references:ID"`
+	Thread        []Thread       `gorm:"foreignKey:ThreadID;references:ID"`
 }
 
 // 区域表
 type Region struct {
-	ID          CustomUint     `json:"id" gorm:"primaryKey"`
-	CreatedAt   time.Time      `json:"created_at" gorm:"comment:创建时间"`
-	UpdatedAt   time.Time      `json:"updated_at" gorm:"comment:记录更新时间"`
+	ID          CustomUint     `gorm:"primaryKey"`
+	CreatedAt   time.Time      `gorm:"comment:创建时间"`
+	UpdatedAt   time.Time      `gorm:"comment:记录更新时间"`
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Name        string         `json:"name" gorm:"comment:区域名"`
-	Description string         `json:"description" gorm:"comment:区域描述"`
-	Scope       string         `json:"scope" gorm:"comment:范围"`
-	FloodEvent  []FloodEvent   `json:"-" gorm:"foreignKey:RegionID;references:ID"`
-	HistoryData []HistoryData  `json:"-" gorm:"foreignKey:RegionID;references:ID"`
-	SensorList  []Sensor       `json:"-" gorm:"foreignKey:RegionID;references:ID"`
+	Name        string         `gorm:"comment:区域名"`
+	Description string         `gorm:"comment:区域描述"`
+	Scope       string         `gorm:"comment:范围"`
+	FloodEvent  []FloodEvent   `gorm:"foreignKey:RegionID;references:ID"`
+	HistoryData []HistoryData  `gorm:"foreignKey:RegionID;references:ID"`
+	SensorList  []Sensor       `gorm:"foreignKey:RegionID;references:ID"`
 }
 
 // 内涝事件
 type FloodEvent struct {
-	ID          CustomUint     `json:"id" gorm:"primaryKey"`
-	CreatedAt   time.Time      `json:"created_at" gorm:"comment:创建时间"`
-	UpdatedAt   time.Time      `json:"updated_at" gorm:"comment:记录更新时间"`
+	ID          CustomUint     `gorm:"primaryKey"`
+	CreatedAt   time.Time      `gorm:"comment:创建时间"`
+	UpdatedAt   time.Time      `gorm:"comment:记录更新时间"`
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Region      Region         `json:"-" gorm:"foreignKey:RegionID;references:ID"`
-	RegionID    CustomUint     `json:"regionId" gorm:"comment:区域ID"`
-	StartTime   CustomTime     `json:"startTime" gorm:"comment:开始时间"`
-	EndTime     CustomTime     `json:"endTime" gorm:"comment:结束时间"`
-	User        User           `json:"-" gorm:"foreignKey:Uploader;references:ID"`
-	Uploader    CustomUint     `json:"uploader" gorm:"comment:上传者ID"`
-	Severity    string         `json:"severity" gorm:"comment:严重性"`
-	Position    string         `json:"position" gorm:"comment:位置"`
-	Description string         `json:"description" gorm:"comment:描述"`
-	Comment     []Comment      `json:"-" gorm:"foreignKey:Author;references:ID"`
+	Region      Region         `gorm:"foreignKey:RegionID;references:ID"`
+	RegionID    CustomUint     `gorm:"comment:区域ID"`
+	StartTime   CustomTime     `gorm:"comment:开始时间"`
+	EndTime     CustomTime     `gorm:"comment:结束时间"`
+	User        User           `gorm:"foreignKey:Uploader;references:ID"`
+	Uploader    CustomUint     `gorm:"comment:上传者ID"`
+	Severity    string         `gorm:"comment:严重性"`
+	Position    string         `gorm:"comment:位置"`
+	Description string         `gorm:"comment:描述"`
+	Comment     []Comment      `gorm:"foreignKey:Author;references:ID"`
 }
 
 // 历史数据
 type HistoryData struct {
-	ID          CustomUint     `json:"id" gorm:"primaryKey"`
-	CreatedAt   time.Time      `json:"created_at" gorm:"comment:创建时间"`
+	ID          CustomUint     `gorm:"primaryKey"`
+	CreatedAt   time.Time      `gorm:"comment:创建时间"`
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	RecordTime  CustomTime     `json:"recordTime" gorm:"comment:记录时间"`
-	Region      Region         `json:"-" gorm:"foreignKey:RegionID;references:ID"`
-	RegionID    CustomUint     `json:"regionId" gorm:"comment:区域ID"`
-	RainFall    CustomFloat    `json:"rainFall" gorm:"comment:降水量"`
-	WaterLevel  CustomFloat    `json:"waterLevel" gorm:"comment:水位"`
-	Velocity    CustomFloat    `json:"velocity" gorm:"comment:流速"`
-	Temperature CustomFloat    `json:"temperature" gorm:"comment:气温"`
-	Humidity    CustomFloat    `json:"humidity" gorm:"comment:湿度"`
-	DataSource  string         `json:"dataSource" gorm:"comment:数据源"`
+	Region      Region         `gorm:"foreignKey:RegionID;references:ID"`
+	RegionID    CustomUint     `gorm:"comment:区域ID"`
+	RainFall    CustomFloat    `gorm:"comment:降水量"`
+	WaterLevel  CustomFloat    `gorm:"comment:水位"`
+	Velocity    CustomFloat    `gorm:"comment:流速"`
+	Temperature CustomFloat    `gorm:"comment:气温"`
+	Humidity    CustomFloat    `gorm:"comment:湿度"`
+	DataSource  string         `gorm:"comment:数据源"`
 }
 
 // 通知公告
 type Notice struct {
-	ID          CustomUint     `json:"id" gorm:"primaryKey"`
-	CreatedAt   time.Time      `json:"created_at" gorm:"comment:创建时间"`
-	UpdatedAt   time.Time      `json:"updated_at" gorm:"comment:记录更新时间"`
+	ID          CustomUint     `gorm:"primaryKey"`
+	CreatedAt   time.Time      `gorm:"comment:创建时间"`
+	UpdatedAt   time.Time      `gorm:"comment:记录更新时间"`
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	User        User           `json:"-" gorm:"foreignKey:Author;references:ID"`
-	Author      CustomUint     `json:"-" gorm:"comment:作者ID"`
-	Title       string         `json:"title" gorm:"comment:标题"`
-	Content     string         `json:"content" gorm:"comment:内容"`
-	Importrance CustomUint     `json:"importance" gorm:"comment:重要性"`
-	Comment     []Comment      `json:"comment" gorm:"foreignKey:Author;references:ID"`
+	User        User           `gorm:"foreignKey:Author;references:ID"`
+	Author      CustomUint     `gorm:"comment:作者ID"`
+	Title       string         `gorm:"comment:标题"`
+	Content     string         `gorm:"comment:内容"`
+	Importrance CustomUint     `gorm:"comment:重要性"`
+	Comment     []Comment      `gorm:"foreignKey:Author;references:ID"`
 }
 
 // 用户评论
 type Comment struct {
-	ID        CustomUint     `json:"id" gorm:"primaryKey"`
-	CreatedAt time.Time      `json:"created_at" gorm:"comment:创建时间"`
+	ID        CustomUint     `gorm:"primaryKey"`
+	CreatedAt time.Time      `gorm:"comment:创建时间"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
-	User      User           `json:"-" gorm:"foreignKey:Author;references:ID"`
-	Author    CustomUint     `json:"Author" gorm:"comment:作者ID"`
-	Content   string         `json:"content" gorm:"comment:内容"`
-	Related   string         `json:"related" gorm:"comment:关联的表"`
+	User      User           `gorm:"foreignKey:Author;references:ID"`
+	Author    CustomUint     `gorm:"comment:作者ID"`
+	Content   string         `gorm:"comment:内容"`
+	Related   string         `gorm:"comment:关联的表"`
 }
 
 // 传感器
 type Sensor struct {
-	ID          CustomUint     `json:"id" gorm:"primaryKey"`
-	CreatedAt   time.Time      `json:"created_at" gorm:"comment:创建时间"`
-	UpdatedAt   time.Time      `json:"updated_at" gorm:"comment:记录更新时间"`
+	ID          CustomUint     `gorm:"primaryKey"`
+	CreatedAt   time.Time      `gorm:"comment:创建时间"`
+	UpdatedAt   time.Time      `gorm:"comment:记录更新时间"`
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Name        string         `json:"name" gorm:"comment:名称"`
-	Abscissa    CustomFloat    `json:"abscissa" gorm:"comment:横坐标"`
-	Ordinate    CustomFloat    `json:"ordinate" gorm:"comment:纵坐标"`
-	Description string         `json:"description" gorm:"comment:描述"`
-	Region      Region         `json:"-" gorm:"foreignKey:RegionID;references:ID"`
-	RegionID    CustomUint     `json:"regionId" gorm:"comment:区域ID"`
+	Name        string         `gorm:"comment:名称"`
+	Abscissa    CustomFloat    `gorm:"comment:横坐标"`
+	Ordinate    CustomFloat    `gorm:"comment:纵坐标"`
+	Description string         `gorm:"comment:描述"`
+	Region      Region         `gorm:"foreignKey:RegionID;references:ID"`
+	RegionID    CustomUint     `gorm:"comment:区域ID"`
 }
 
 // 传感器状态
 type SensorStatus struct {
-	ID          CustomUint     `json:"id" gorm:"primaryKey"`
-	CreatedAt   time.Time      `json:"created_at" gorm:"comment:创建时间"`
+	ID          CustomUint     `gorm:"primaryKey"`
+	CreatedAt   time.Time      `gorm:"comment:创建时间"`
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Time        CustomTime     `json:"time" gorm:"comment:时间"`
-	Sensor      Sensor         `json:"-" gorm:"foreignKey:SensorID;references:ID"`
-	SensorID    CustomUint     `json:"sensorId" gorm:"comment:传感器ID"`
-	Status      string         `json:"status" gorm:"comment:状态"`
-	Description string         `json:"description" gorm:"comment:描述"`
+	Time        CustomTime     `gorm:"comment:时间"`
+	Sensor      Sensor         `gorm:"foreignKey:SensorID;references:ID"`
+	SensorID    CustomUint     `gorm:"comment:传感器ID"`
+	Status      string         `gorm:"comment:状态"`
+	Description string         `gorm:"comment:描述"`
+}
+
+type Thread struct {
+	ID         CustomUint     `gorm:"primaryKey"`
+	CreatedAt  time.Time      `gorm:"comment:创建时间"`
+	UpdatedAt  time.Time      `gorm:"comment:更新时间"`
+	DeletedAt  gorm.DeletedAt `gorm:"index"`
+	ThreadID   string         `gorm:"comment:会话ID"`
+	ThreadName string         `gorm:"会话名"`
+	User       User           `gorm:"foreignKey:UserID;references:ID"`
+	UserID     CustomUint     `gorm:"comment:用户ID"`
 }
 
 // 请求日志

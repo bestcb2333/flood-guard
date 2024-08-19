@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func VerifyJwt(c *gin.Context) (*db.User, error) {
+func VerifyJwt(c *gin.Context, tables ...string) (*db.User, error) {
 	JwtToken, err := jwt.Parse(
 		c.GetHeader("Authorization")[7:],
 		func(t *jwt.Token) (any, error) {
@@ -26,7 +26,14 @@ func VerifyJwt(c *gin.Context) (*db.User, error) {
 	}
 
 	var user db.User
-	if err := DB.First(
+	query := DB
+	if len(tables) != 0 {
+		for _, table := range tables {
+			query.Preload(table)
+		}
+	}
+
+	if err := query.First(
 		&user, uint(claims["userId"].(float64)),
 	).Error; err != nil {
 		util.HandleQueryErr(c, "找不到用户", err)

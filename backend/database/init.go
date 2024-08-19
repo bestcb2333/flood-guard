@@ -2,7 +2,6 @@ package database
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
@@ -12,7 +11,7 @@ import (
 var DB *gorm.DB
 
 // 初始化数据库
-func Init() {
+func Init() error {
 	var err error
 
 	// 连接数据库
@@ -24,7 +23,7 @@ func Init() {
 		viper.GetString("DB_PORT"),
 		viper.GetString("DB_NAME"),
 	))); err != nil {
-		log.Fatalf("数据库连接失败: %v\n", err)
+		return err
 	}
 
 	// 自动迁移数据库表
@@ -46,4 +45,5 @@ func Init() {
 			fmt.Printf("无法为%v设置为管理员：%v\n", adminName, err.Error())
 		}
 	}
+	return nil
 }

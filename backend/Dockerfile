@@ -7,5 +7,6 @@ COPY . .
 RUN CGO_ENABLED=0 go build -o floodguard
 FROM alpine:latest
 WORKDIR /app
+RUN apk add tzdata
 COPY --from=builder /app/floodguard .
 ENTRYPOINT [ "./floodguard" ]
