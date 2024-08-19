@@ -4,7 +4,14 @@
 	"password": "your_password_here",
 	"log_path": "your_log_path_here",
 	"enable_temperature_humidity": false,
+	"temperature_himidity_pin": 1,
 	"enable_water_level": false,
+	"water_trig_pin": 1,
+	"water_echo_pin": 1,
 	"enable_velocity": false,
-	"enable_rain_fall": false
+	"velocity_trig_pin": 1,
+	"velocity_echo_pin": 1,
+	"velocity_sensor_distance": 10,
+	"enable_rain_fall": false,
+	"rain_fall_pin": 1
 }
