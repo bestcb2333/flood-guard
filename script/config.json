@@ -2,5 +2,9 @@
 	"host": "localhost",
 	"port": "8080",
 	"password": "your_password_here",
-	"log_path": "your_log_path_here"
+	"log_path": "your_log_path_here",
+	"enable_temperature_humidity": false,
+	"enable_water_level": false,
+	"enable_velocity": false,
+	"enable_rain_fall": false
 }
