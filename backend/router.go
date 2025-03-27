@@ -3,45 +3,63 @@ package main
 import (
 	"time"
 
-	"github.com/bestcb2333/FloodGuard/handler"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
-func Router() {
+func Router() *gin.Engine {
 
 	r := gin.Default()
 
-	//允许CORS跨域
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins:  true,
-		AllowMethods:     []string{"GET", "POST"},
-		AllowHeaders:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"*"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
 
-	r.GET("/captcha", handler.GetCaptcha)
-	r.GET("/email", handler.GetMail)
-	r.GET("/get/:path", handler.SelectRecord)
-	r.GET("gpt", handler.Gpt)
+	r.GET("/ping", Ping)
+	r.GET("/metadata", GetMetadata)
+	r.GET("/captcha", GetCaptcha)
+	r.GET("/map", Preload(GetMap, PARAM))
+	r.POST("/login", Preload(Login, JSON))
+	r.POST("/signup", AuthCaptcha, AuthEmail, Preload(Signup, JSON))
+	r.GET("/mail", Preload(SendMail, PARAM))
+	r.GET("/myinfo", Preload(GetMyInfo, LOGIN, "Region"))
+	r.GET("/factor", GetRiskFactor)
+	r.GET("/deepseek", Preload(GetDeepSeek, LOGIN, "Analyses"))
+	r.POST("/deepseek", Preload(PostDeepSeek, LOGIN|JSON, "Analyses"))
+	r.POST("/upload/region", Preload(UploadRegion, LOGIN|ADMIN|BIND))
+	r.POST("/upload/event", Preload(UploadEvent, LOGIN|ADMIN|BIND))
 
-	r.Use(handler.PostMidWare)
-	r.POST("/login", handler.AuthCaptcha, handler.Login)
-	r.POST("/signup", handler.Signup)
-	r.POST("/edit/:path", handler.EditRecord)
-	r.POST("/delete/:path", handler.DeleteRecord)
-	r.POST("/gpt", handler.Gpt)
+	r.GET("/user", Get[User])
+	r.GET("/region", Get[Region])
+	r.GET("/event", Get[Event])
+	r.GET("/history", Get[History])
+	r.GET("/resource", Get[Resource])
+	r.GET("/notice", Get[Notice])
+	r.GET("/sensor", Get[Sensor])
+	r.GET("/analysis", Get[Analysis])
 
-	if viper.GetString("SSL_ENABLE") == "true" {
-		r.RunTLS(
-			":"+viper.GetString("port"),
-			viper.GetString("SSL_CERTIFICATE"),
-			viper.GetString("SSL_KEY"),
-		)
-	} else {
-		r.Run(":" + viper.GetString("port"))
-	}
+	r.POST("/user", Preload(Set[User], LOGIN|ADMIN|JSON))
+	r.POST("/region", Preload(Set[Region], LOGIN|ADMIN|JSON))
+	r.POST("/event", Preload(Set[Event], LOGIN|ADMIN|JSON))
+	r.POST("/history", Preload(Set[History], LOGIN|ADMIN|JSON))
+	r.POST("/resource", Preload(Set[Resource], LOGIN|ADMIN|JSON))
+	r.POST("/notice", Preload(Set[Notice], LOGIN|ADMIN|JSON))
+	r.POST("/sensor", Preload(Set[Sensor], LOGIN|ADMIN|JSON))
+	r.POST("/analysis", Preload(Set[Analysis], LOGIN|ADMIN|JSON))
+
+	r.DELETE("/users", Preload(Delete[User], LOGIN|ADMIN|JSON))
+	r.DELETE("/regions", Preload(Delete[Region], LOGIN|ADMIN|JSON))
+	r.DELETE("/events", Preload(Delete[Event], LOGIN|ADMIN|JSON))
+	r.DELETE("/histories", Preload(Delete[History], LOGIN|ADMIN|JSON))
+	r.DELETE("/resources", Preload(Delete[Resource], LOGIN|ADMIN|JSON))
+	r.DELETE("/notices", Preload(Delete[Notice], LOGIN|ADMIN|JSON))
+	r.DELETE("/sensors", Preload(Delete[Sensor], LOGIN|ADMIN|JSON))
+	r.DELETE("/analyses", Preload(Delete[Analysis], LOGIN|ADMIN|JSON))
+
+	return r
 }
