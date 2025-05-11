@@ -5,17 +5,26 @@ import (
 )
 
 func main() {
-	if err := Init(); err != nil {
+
+	var config Config
+	if err := LoadConfigFromEnv(&config); err != nil {
+		log.Fatalf("配置读取失败：%w\n", err)
+	}
+
+	db, err := InitDB(&config)
+	if err != nil {
 		log.Fatalf("项目初始化失败: %v\n", err.Error())
 	}
-	r := Router()
-	if Config.SSL.Enable {
+
+	r := GetRouter(db, &config)
+
+	if config.SSL.Enable {
 		r.RunTLS(
-			":"+Config.Port,
-			Config.SSL.Certificate,
-			Config.SSL.Key,
+			":"+config.Port,
+			config.SSL.Certificate,
+			config.SSL.Key,
 		)
 	} else {
-		r.Run(":" + Config.Port)
+		r.Run(":" + config.Port)
 	}
 }

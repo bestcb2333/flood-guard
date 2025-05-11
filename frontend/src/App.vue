@@ -1,34 +1,17 @@
 <script setup lang="ts">
-import type {GeoJSON} from 'echarts/types/src/coord/geo/geoTypes.js';
-import NavBar from './NavBar.vue';
-import {useUserStore, type User} from './stores/user';
-import apiAxios from './utils/axios';
-import useMapStore from './stores/map';
+import NavBar from './NavBar.vue'
+import useSessionStore from './stores/session';
 
-// 自动登录逻辑
-const user = useUserStore()
-apiAxios.get<User>('/myinfo').then(res => {
-  user.val = res.data
-}).catch(err => console.log(err))
-
-// 获取地图
-const map = useMapStore()
-apiAxios.get<GeoJSON>('/map').then(res => {
-  map.map = res.data
-}).catch(err => console.log(err))
+const session = useSessionStore()
+session.loadUser()
+session.loadMap()
 </script>
 
 <template>
-  <div class="app-layout flex gap-2">
-    <nav-bar />
-    <div class="flex-grow-1 h-100">
+  <div class="h-screen p-3 flex gap-3">
+    <nav-bar class="shrink-0" />
+    <div class="grow no-scrollbar overflow-y-auto rounded-xl">
       <router-view />
     </div>
   </div>
 </template>
-
-<style scoped>
-.app-layout {
-  height: calc(100vh - 2rem);
-}
-</style>

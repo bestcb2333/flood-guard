@@ -1,0 +1,65 @@
+<html>
+<head>
+	<style>
+		body {
+			font-family: 'Arial', sans-serif;
+			background-color: #f4f4f4;
+			margin: 0;
+			padding: 20px;
+		}
+		.email-container {
+			background-color: #ffffff;
+			padding: 20px;
+			margin: auto;
+			max-width: 600px;
+			border-radius: 8px;
+			box-shadow: 0 0 10px rgba(0,0,0,0.1);
+		}
+		.header {
+			font-size: 20px;
+			margin-bottom: 20px;
+		}
+		.logo-img{
+			width: 120px;
+			height: auto;
+		}
+		.code{
+			margin: 0;
+			padding: 30px;
+			color: #fff;
+			border-radius: 8px;
+			background: #28abce;
+			letter-spacing: 5px;
+			text-align: center;
+			font-size: 40px;
+			font-size: bolder;
+		}
+		.content {
+			font-size: 16px;
+			color: #333333;
+		}
+		.footer {
+			font-size: 12px;
+			color: #777777;
+			margin-top: 20px;
+		}
+	</style>
+</head>
+	<body>
+		<div class="email-container">
+			<div>
+				<div style="margin: 10px 0;padding-bottom: 10px;">
+					<img class="logo-img" src="https://api.mcax.cn/img/axlogo.png"/>
+				</div>
+				<hr style="background-color: #efefef;height: 2px;border: none;"/>
+				<p class="header">验证码邮件</p>
+				<p class="content">尊敬的{{.Receiver}}，看起来您正在注册FloodGuard账号。</p>
+                <p class="content">我们查询到发起注册请求的地址为{{.Location}}，如非本人操作，请勿处理此邮件。</p>
+				<p class="content">您的验证码：</p>
+				<p class="code"><strong>{{.Authcode}}</strong></p>
+				<p class="content">有效期至{{.Expiration}}。请在有效期内使用验证码进行验证。</p>
+				<p class="footer">此邮件由系统自动发送，请勿回复。</p>
+			</div>
+		</div>
+	</body>
+</html>

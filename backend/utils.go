@@ -13,6 +13,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"gorm.io/gorm"
 )
 
 type JWTClaims struct {
@@ -49,14 +50,14 @@ func LocateAddress(ip string) (string, error) {
 }
 
 // 通过用户ID获取JWT字符串
-func GetJwt(userId uint) (string, error) {
+func GetJwt(userId uint, jwtKey string) (string, error) {
 	return jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"userId": userId,
 			"exp":    time.Now().Add(time.Hour * 24).Unix(),
 		},
-	).SignedString([]byte(Config.JWTKey))
+	).SignedString([]byte(jwtKey))
 }
 
 // 制作响应体
@@ -86,11 +87,11 @@ func RandStr(n int) string {
 }
 
 // 通过JWT字符串和预加载的表名获取用户对象
-func GetUserByJwt(token string, tables ...string) (*User, error) {
+func GetUserByJwt(token string, jwtKey string, tables ...string) (*User, error) {
 	JwtToken, err := jwt.Parse(
 		token[7:],
 		func(t *jwt.Token) (any, error) {
-			return []byte(Config.JWTKey), nil
+			return []byte(jwtKey), nil
 		},
 	)
 	if err != nil {
@@ -102,7 +103,7 @@ func GetUserByJwt(token string, tables ...string) (*User, error) {
 	}
 
 	var user User
-	query := DB
+	query := new(gorm.DB)
 	if len(tables) != 0 {
 		for _, table := range tables {
 			query.Preload(table)
@@ -166,4 +167,10 @@ var emailRegex = regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]
 
 func isValidEmail(email string) bool {
 	return emailRegex.MatchString(email)
+}
+
+func Select(columns ...string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Select(columns)
+	}
 }

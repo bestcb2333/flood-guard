@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"net/smtp"
 	"os"
@@ -29,66 +28,8 @@ type EmailCodeDataValue struct {
 	Expiration time.Time
 }
 
-func SendMail(c *gin.Context, _ *User, r struct {
+type SendEmailDTO struct {
 	Email string `form:"email"`
-}) {
-
-	if ok := isValidEmail(r.Email); !ok {
-		c.JSON(400, Resp("邮箱格式有误", nil, nil))
-		return
-	}
-
-	if err := DB.First(
-		new(User), "email = ?", r.Email,
-	).Error; err == nil {
-		c.JSON(400, Resp("这个邮箱已经被注册过了", err, nil))
-		return
-	}
-
-	authcode := RandStr(6)
-	expiration := time.Now().Add(10 * time.Minute)
-	EmailCodeData.Mu.Lock()
-	EmailCodeData.Data[r.Email] = EmailCodeDataValue{
-		Code:       authcode,
-		Expiration: expiration,
-	}
-	EmailCodeData.Mu.Unlock()
-
-	address, err := LocateAddress(c.ClientIP())
-	if err != nil {
-		c.JSON(500, Resp("获取客户端地址失败", err, nil))
-		return
-	}
-
-	mailBody, err := getMailBody(&MailData{
-		Receiver:   r.Email,
-		Authcode:   authcode,
-		Expiration: expiration.Format("2006-01-02 15:04"),
-		Location:   address,
-	})
-	if err != nil {
-		c.JSON(500, Resp("邮件内容生成失败", err, nil))
-		return
-	}
-
-	fmt.Println(Config.SMTP)
-
-	if err := smtp.SendMail(
-		Config.SMTP.Server+":"+Config.SMTP.Port,
-		smtp.PlainAuth("",
-			Config.SMTP.Mail,
-			Config.SMTP.Password,
-			Config.SMTP.Server,
-		),
-		Config.SMTP.Mail,
-		[]string{r.Email},
-		mailBody,
-	); err != nil {
-		c.JSON(500, Resp("邮件发送失败", err, nil))
-		return
-	}
-
-	c.JSON(200, Resp("邮件发送成功", nil, nil))
 }
 
 // 生成邮件内容体的函数
@@ -125,4 +66,69 @@ func getMailBody(maildata *MailData) ([]byte, error) {
 	}
 
 	return buffer.Bytes(), nil
+}
+
+func AddSendEmailRoutes(r *gin.Engine, pbc *PreloaderBaseConfig, config *SMTPConfig) {
+
+	r.GET("/email/:id", Preload(
+		&PreloaderConfig{Bind: BindConfig{Param: true}},
+		&SendEmailDTO{},
+		func(c *gin.Context, _ *User, r *SendEmailDTO) {
+
+			if ok := isValidEmail(r.Email); !ok {
+				c.JSON(400, Resp("邮箱格式有误", nil, nil))
+				return
+			}
+
+			if err := pbc.DB.First(
+				new(User), "email = ?", r.Email,
+			).Error; err == nil {
+				c.JSON(400, Resp("这个邮箱已经被注册过了", err, nil))
+				return
+			}
+
+			authcode := RandStr(6)
+			expiration := time.Now().Add(10 * time.Minute)
+			EmailCodeData.Mu.Lock()
+			EmailCodeData.Data[r.Email] = EmailCodeDataValue{
+				Code:       authcode,
+				Expiration: expiration,
+			}
+			EmailCodeData.Mu.Unlock()
+
+			address, err := LocateAddress(c.ClientIP())
+			if err != nil {
+				c.JSON(500, Resp("获取客户端地址失败", err, nil))
+				return
+			}
+
+			mailBody, err := getMailBody(&MailData{
+				Receiver:   r.Email,
+				Authcode:   authcode,
+				Expiration: expiration.Format("2006-01-02 15:04"),
+				Location:   address,
+			})
+			if err != nil {
+				c.JSON(500, Resp("邮件内容生成失败", err, nil))
+				return
+			}
+
+			if err := smtp.SendMail(
+				config.Server+":"+config.Port,
+				smtp.PlainAuth("",
+					config.Mail,
+					config.Password,
+					config.Server,
+				),
+				config.Mail,
+				[]string{r.Email},
+				mailBody,
+			); err != nil {
+				c.JSON(500, Resp("邮件发送失败", err, nil))
+				return
+			}
+
+			c.JSON(200, Resp("邮件发送成功", nil, nil))
+		},
+	))
 }

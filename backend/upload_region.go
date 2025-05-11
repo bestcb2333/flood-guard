@@ -23,33 +23,44 @@ type Geometry[T any] struct {
 	Coordinates T      `json:"coordinates"`
 }
 
-func UploadRegion(c *gin.Context, u *User, r struct {
+type UploadRegionDTO struct {
 	FH          *multipart.FileHeader `form:"file"`
 	Name        string                `form:"name"`
 	Description string                `form:"description"`
-}) {
+}
 
-	if err := DB.Unscoped().Where("1=1").Delete(new(Region)).Error; err != nil {
-		c.JSON(500, Resp("regions表清空失败", err, nil))
-		return
-	}
+func AddUploadRegionRoutes(r *gin.Engine, pbc *PreloaderBaseConfig) {
 
-	geo, err := ReadFileHeader[FeatureCollection[orb.MultiPolygon]](r.FH)
-	if err != nil {
-		c.JSON(400, Resp("文件格式有误", err, nil))
-		return
-	}
+	r.POST("/regions", Preload(
+		&PreloaderConfig{},
+		&UploadRegionDTO{},
+		func(c *gin.Context, u *User, r *UploadRegionDTO) {
 
-	for _, feature := range geo.Features {
-		region := &Region{
-			Coordinate: feature.Geometry.Coordinates,
-			Name:       feature.Properties["name"].(string),
-		}
-		if err := DB.Save(region).Error; err != nil {
-			c.JSON(500, Resp("数据存储失败", err, nil))
-			return
-		}
-	}
+			if err := pbc.DB.Unscoped().Where("1=1").Delete(new(Region)).Error; err != nil {
+				c.JSON(500, Resp("regions表清空失败", err, nil))
+				return
+			}
 
-	c.JSON(200, Resp("数据存储完成", nil, nil))
+			geo, err := ReadFileHeader[FeatureCollection[orb.MultiPolygon]](r.FH)
+			if err != nil {
+				c.JSON(400, Resp("文件格式有误", err, nil))
+				return
+			}
+
+			for _, feature := range geo.Features {
+				region := &Region{
+					RegionDTO: RegionDTO{
+						Coordinate: feature.Geometry.Coordinates,
+						Name:       feature.Properties["name"].(string),
+					},
+				}
+				if err := pbc.DB.Save(region).Error; err != nil {
+					c.JSON(500, Resp("数据存储失败", err, nil))
+					return
+				}
+			}
+
+			c.JSON(200, Resp("数据存储完成", nil, nil))
+		},
+	))
 }

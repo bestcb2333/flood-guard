@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg-color: #f5f5f5;
+  --font-size: 14px;
+  --el-color-primary: #28abce;
+  --el-font-size-base: var(--font-size);
+	--el-menu-active-color: #ffffff;
+	--el-menu-active-bg-color: var(--el-color-primary);
+	--el-menu-item-height: 42px;
+  font-size: var(--font-size);
+  background-color: var(--bg-color);
+}
+
+.title-text {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.subpage-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 1rem;
+}
+
+.theme-color {
+  color: var(--el-color-primary);
+}
+
+.el-card {
+  border-radius: 24px;
+}
+
+.el-card__header {
+  font-weight: bold;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.el-menu-item.is-active {
+	background-color: var(--el-menu-active-bg-color);
+}

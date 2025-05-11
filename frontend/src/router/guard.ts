@@ -1,12 +1,11 @@
-import useUserStore from "@/stores/user";
-import {ElMessage} from "element-plus";
-import {type NavigationGuard} from "vue-router";
+import { useDataStore } from '@/stores/data'
+import { ElMessage } from 'element-plus'
+import { type NavigationGuard } from 'vue-router'
 
 export const loginGuard: NavigationGuard = (to) => {
-
-  const user = useUserStore()
-  if (!user.val) {
-    ElMessage({type: 'error', message: '请先登录'})
+  const data = useDataStore()
+  if (!data.user) {
+    ElMessage({ type: 'error', message: '请先登录' })
     return {
       path: '/login',
       query: { redirect: to.fullPath },
@@ -15,10 +14,9 @@ export const loginGuard: NavigationGuard = (to) => {
 }
 
 export const adminGuard: NavigationGuard = () => {
-
-  const user = useUserStore()
-  if (!user.val?.admin) {
-    ElMessage({type: 'error', message: '你不是管理员'})
+  const data = useUserStore()
+  if (!data.user?.admin) {
+    ElMessage({ type: 'error', message: '你不是管理员' })
     return false
   }
 }

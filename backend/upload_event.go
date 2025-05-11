@@ -8,31 +8,42 @@ import (
 	"github.com/paulmach/orb"
 )
 
-func UploadEvent(c *gin.Context, u *User, r struct {
+type UploadEventDTO struct {
 	FH          *multipart.FileHeader `form:"file"`
 	StartTime   time.Time             `form:"startTime"`
 	EndTime     time.Time             `form:"endTine"`
 	Severity    uint                  `form:"severity"`
 	Description string                `form:"description"`
-}) {
+}
 
-	geo, err := ReadFileHeader[orb.MultiPolygon](r.FH)
-	if err != nil {
-		c.JSON(400, Resp("数据格式有误", err, nil))
-		return
-	}
+func AddUploadEventRoutes(r *gin.Engine, pbc *PreloaderBaseConfig) {
 
-	if err := DB.Save(&Event{
-		StartTime:   r.StartTime,
-		EndTime:     r.EndTime,
-		UserID:      &u.ID,
-		Severity:    r.Severity,
-		Coordinate:  *geo,
-		Description: &r.Description,
-	}).Error; err != nil {
-		c.JSON(500, Resp("数据存储失败", err, nil))
-		return
-	}
+	r.POST("/regions", Preload(
+		&PreloaderConfig{},
+		&UploadEventDTO{},
+		func(c *gin.Context, u *User, r *UploadEventDTO) {
 
-	c.JSON(200, Resp("数据上传成功", nil, nil))
+			geo, err := ReadFileHeader[orb.Point](r.FH)
+			if err != nil {
+				c.JSON(400, Resp("数据格式有误", err, nil))
+				return
+			}
+
+			if err := pbc.DB.Save(&Event{
+				EventDTO: EventDTO{
+					StartTime:   r.StartTime,
+					EndTime:     &r.EndTime,
+					Severity:    r.Severity,
+					Coordinate:  *geo,
+					Description: r.Description,
+				},
+				UserID: &u.ID,
+			}).Error; err != nil {
+				c.JSON(500, Resp("数据存储失败", err, nil))
+				return
+			}
+
+			c.JSON(200, Resp("数据上传成功", nil, nil))
+		},
+	))
 }

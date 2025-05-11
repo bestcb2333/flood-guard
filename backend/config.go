@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-var Config struct {
+type Config struct {
 	Port   string `env:"PORT" def:"8080"`
 	JWTKey string `env:"JWT_KEY"`
 	SSL    SSLConfig

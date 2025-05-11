@@ -1,19 +1,19 @@
 <script setup lang="ts">
-import CardTitle from '@/components/CardTitle.vue';
-import axios from 'axios';
-import apiAxios from '@/utils/axios';
-import { SHA256 } from 'crypto-js';
-import useSystemStore from '@/stores/system';
-import useUserStore from '@/stores/user';
-import {reactive, ref} from 'vue';
-import {useRoute, useRouter} from 'vue-router';
-import type {FormRules} from 'element-plus';
-import { useI18n } from 'vue-i18n';
-import type {User} from './types';
+import CardTitle from '@/components/CardTitle.vue'
+import axios from 'axios'
+import { SHA256 } from 'crypto-js'
+import { reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import type { FormRules } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+import type { User } from './tables'
+import useSessionStore from './stores/session'
+import usePersistedStore from './stores/persisted'
+import { apiAxios } from './axios'
 
 const { t } = useI18n()
-const user = useUserStore()
-const system = useSystemStore()
+const session = useSessionStore()
+const persisted = usePersistedStore()
 const router = useRouter()
 const route = useRoute()
 const activeTab = ref('login')
@@ -26,26 +26,31 @@ const loginForm = reactive({
 
 // 登录校验规则
 const loginRules = reactive<FormRules<Record<string, string>>>({
-  username: [{required: true, message: t('login.rules.username'), trigger: 'blur'}],
-  password: [{required: true, message: t('login.rules.password'), trigger: 'blur'}],
+  username: [{ required: true, message: t('login.rules.username'), trigger: 'blur' }],
+  password: [{ required: true, message: t('login.rules.password'), trigger: 'blur' }],
 })
 
 // 发送登录请求
 function login() {
-  apiAxios.post<string>('/login', {
-    username: loginForm.username,
-    password: SHA256(loginForm.password).toString(),
-  }).then(res => {
-    localStorage.setItem('token', res.data)
-  }).catch(err => console.log(err))
+  apiAxios
+    .post<string>('/login', {
+      username: loginForm.username,
+      password: SHA256(loginForm.password).toString(),
+    })
+    .then((res) => {
+      localStorage.setItem('token', res.data)
+    })
+    .catch((err) => console.log(err))
 
-  apiAxios.get<User>('/myinfo').then(res => {
-    user.val = res.data
-  }).catch(err => console.log(err))
+  apiAxios
+    .get<User>('/myinfo')
+    .then((res) => {
+      session.user = res.data
+    })
+    .catch((err) => console.log(err))
 
   router.push(route.params.redirect as string)
 }
-
 
 // 注册表单
 const signupForm = reactive({
@@ -60,21 +65,33 @@ const signupForm = reactive({
 
 // 发送注册请求
 function signup() {
-  apiAxios.post<string>('/signup', {
-    username: signupForm.username,
-    password: SHA256(signupForm.password).toString(),
-  }, { headers: {
-    'X-Captcha-Id': signupForm.captchaId,
-    'X-Captcha-Value': signupForm.captchaValue,
-    'X-Email-Number': signupForm.emailNumber,
-    'X-Email-Code': signupForm.emailCode,
-  }}).then(res => {
-    localStorage.setItem('token', res.data)
-  }).catch(err => console.log(err))
+  apiAxios
+    .post<string>(
+      '/signup',
+      {
+        username: signupForm.username,
+        password: SHA256(signupForm.password).toString(),
+      },
+      {
+        headers: {
+          'X-Captcha-Id': signupForm.captchaId,
+          'X-Captcha-Value': signupForm.captchaValue,
+          'X-Email-Number': signupForm.emailNumber,
+          'X-Email-Code': signupForm.emailCode,
+        },
+      },
+    )
+    .then((res) => {
+      localStorage.setItem('token', res.data)
+    })
+    .catch((err) => console.log(err))
 
-  apiAxios.get<User>('/myinfo').then(res => {
-    user.val = res.data
-  }).catch(err => console.log(err))
+  apiAxios
+    .get<User>('/myinfo')
+    .then((res) => {
+      session.user = res.data
+    })
+    .catch((err) => console.log(err))
 
   router.push(route.params.redirect as string)
 }
@@ -82,10 +99,10 @@ function signup() {
 const captchaUrl = ref('')
 async function loadCaptcha() {
   try {
-    const resp = await axios.get(`${system.backendAddr}/captcha`, {
+    const resp = await axios.get(`${persisted.setting.apiAddr}/captcha`, {
       responseType: 'blob',
     })
-    const blob = new Blob([resp.data], {type: resp.headers['Content-Type'] as string})
+    const blob = new Blob([resp.data], { type: resp.headers['Content-Type'] as string })
     captchaUrl.value = URL.createObjectURL(blob)
     signupForm.captchaId = resp.headers['X-Captcha-Id']
   } catch (err) {
@@ -105,26 +122,25 @@ const retrieveForm = reactive({
 
 // 发送找回密码请求
 function retrieve() {
-  const {password, ...formData} = retrieveForm
-  apiAxios.post('/retrieve', {
-    ...formData,
-    password: SHA256(retrieveForm.password).toString(),
-  }).catch(err => console.log(err))
+  const { password, ...formData } = retrieveForm
+  apiAxios
+    .post('/retrieve', {
+      ...formData,
+      password: SHA256(retrieveForm.password).toString(),
+    })
+    .catch((err) => console.log(err))
 }
 </script>
 
 <template>
   <el-row class="h-100">
-    <el-col :xs="0" :md="12">
-
-    </el-col>
+    <el-col :xs="0" :md="12"> </el-col>
     <el-col :xs="24" :md="12" class="flex-col justify-center align-center">
       <el-card class="w-60">
         <card-title title="user.title" class="mb-4">
           <User />
         </card-title>
         <el-tabs v-model="activeTab">
-
           <!-- 登录页面 -->
           <el-tab-pane :label="$t('user.login.title')" name="login">
             <el-form :model="loginForm" label-width="auto" :rules="loginRules">
@@ -167,7 +183,12 @@ function retrieve() {
               <el-form-item :label="$t('user.signup.captcha')">
                 <el-input v-model="signupForm.captchaValue">
                   <template #append>
-                    <img :src="captchaUrl" style="height: 30px; width: 80px;" :alt="$t('user.signup.captcha')" @click="loadCaptcha" />
+                    <img
+                      :src="captchaUrl"
+                      style="height: 30px; width: 80px"
+                      :alt="$t('user.signup.captcha')"
+                      @click="loadCaptcha"
+                    />
                   </template>
                 </el-input>
               </el-form-item>
