@@ -19,22 +19,25 @@ const router = createRouter({
       name: 'dashboard',
       component: () => import('@/views/DashBoard.vue'),
       meta: {
+        name: 'dashboard',
         icon: DataBoard,
       },
     },
     {
-      path: '/resource',
-      name: 'resource',
+      path: '/resources',
+      name: 'resources',
       component: () => import('@/views/ResourceManage.vue'),
       meta: {
+        name: 'resources',
         icon: FirstAidKit,
       },
     },
     {
-      path: '/history',
-      name: 'history',
+      path: '/histories',
+      name: 'histories',
       component: () => import('@/views/HistoryData.vue'),
       meta: {
+        name: 'histories',
         icon: Histogram,
       },
     },
@@ -43,30 +46,34 @@ const router = createRouter({
       name: 'sensors',
       component: () => import('@/views/SensorManage.vue'),
       meta: {
+        name: 'sensors',
         icon: Cpu,
       },
     },
     {
-      path: '/event',
-      name: 'event',
+      path: '/events',
+      name: 'events',
       component: () => import('@/views/FloodEvents.vue'),
       meta: {
+        name: 'events',
         icon: Warning,
       },
     },
     {
-      path: '/staff',
-      name: 'staff',
-      component: () => import('@/views/AllStaff.vue'),
+      path: '/users',
+      name: 'users',
+      component: () => import('@/views/UserManage.vue'),
       meta: {
+        name: 'users',
         icon: User,
       },
     },
     {
-      path: '/wiki',
-      name: 'wiki',
+      path: '/wikis',
+      name: 'wikis',
       component: () => import('@/views/FloodWiki.vue'),
       meta: {
+        name: 'wikis',
         icon: Notebook,
       },
     },
@@ -75,14 +82,16 @@ const router = createRouter({
       name: 'deepseek',
       component: () => import('@/views/DeepSeek.vue'),
       meta: {
+        name: 'deepseek',
         icon: Search,
       },
     },
     {
-      path: '/setting',
-      name: 'setting',
+      path: '/settings',
+      name: 'settings',
       component: () => import('@/views/AppSetting.vue'),
       meta: {
+        name: 'settings',
         icon: Setting,
       },
     },

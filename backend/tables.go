@@ -92,7 +92,7 @@ type EventDTO struct {
 	RegionID    uint       `json:"-" gorm:"not null;index;comment:所在区域ID"`
 	StartTime   time.Time  `json:"startTime" gorm:"not null;comment:开始时间"`
 	EndTime     *time.Time `json:"endTime" gorm:"comment:结束时间"`
-	Severity    uint       `json:"severity" gorm:"not null;comment:严重性"`
+	Severity    string     `json:"severity" gorm:"type:VARCHAR(20);not null;comment:严重性"`
 	Coordinate  orb.Point  `json:"coordinate" gorm:"type:JSON;serializer:json;not null;comment:坐标"`
 	Description string     `json:"description" gorm:"type:TEXT;not null;comment:描述"`
 }

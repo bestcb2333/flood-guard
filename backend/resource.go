@@ -1,50 +1,61 @@
 package main
 
 import (
+	p "github.com/bestcb2333/gin-gorm-preloader/preloader"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type ListResourceDTO struct {
-	Type   string `form:"type"`
-	Region uint   `form:"region"`
-	ListDTO
+type ListResourceReq struct {
+	Type      string `form:"type"`
+	RegionID  uint   `form:"region_id"`
+	Available bool   `form:"available"`
+	p.PageConfig
 }
 
-func AddResourceRoutes(r *gin.Engine, pbc *PreloaderBaseConfig) {
+func AddResourceRoutes(r *gin.Engine, bc *p.BaseConfig) {
 
-	r.GET("/resources", CreateListHandler[Resource](
-		&PreloaderConfig{
-			PreloaderBaseConfig: pbc,
-			Bind:                BindConfig{Query: true},
+	r.GET("/resources", p.CreateListHandler[Resource](
+		&p.Config[ListResourceReq]{
+			Base: bc,
+			DefReq: ListResourceReq{
+				Type:      "all",
+				Available: false,
+				PageConfig: p.PageConfig{
+					Page:     1,
+					PageSize: 10,
+				},
+			},
 		},
-		&ListResourceDTO{"", 0, ListDTO{1, 10}},
-		func(query *gorm.DB, c *gin.Context, u *User, r *ListResourceDTO) *gorm.DB {
+		func(query *gorm.DB, c *gin.Context, u *User, r *ListResourceReq) *gorm.DB {
 			query = query.Preload("Region", Select("id", "name"))
-			if r.Type != "" {
+			if r.Type != "all" {
 				query = query.Where("type = ?", r.Type)
 			}
-			if r.Region != 0 {
-				query = query.Where("region_id = ?", r.Region)
+			if r.RegionID != 0 {
+				query = query.Where("region_id = ?", r.RegionID)
+			}
+			if r.Available {
+				query = query.Where("available = true")
 			}
 			return query
 		},
 	))
 
-	r.POST("/resources", CreateAddHandler(
-		&PreloaderConfig{
-			PreloaderBaseConfig: pbc,
-			Bind:                BindConfig{JSON: true},
+	r.POST("/resources", p.CreateAddHandler(
+		&p.Config[ResourceDTO]{
+			Base: bc,
 		},
-		new(ResourceDTO),
-		func(data *Resource, u *User, dto *ResourceDTO) *Resource {
+		func(c *gin.Context, u *User, dto *ResourceDTO) *Resource {
+			data := new(Resource)
 			data.ResourceDTO = *dto
 			return data
 		},
 	))
 
-	r.DELETE("/resources", CreateDeleteHandler[Resource](&PreloaderConfig{
-		PreloaderBaseConfig: pbc,
-		Bind:                BindConfig{Query: true},
-	}))
+	r.DELETE("/resources", p.CreateDeleteHandler[Resource, User](
+		&p.Config[p.DelReq]{
+			Base: bc,
+		},
+	))
 }

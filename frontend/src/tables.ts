@@ -37,7 +37,7 @@ export interface Event {
   startTime: Date
   endTime: Date
   user: User | null
-  severity: number
+  severity: string
   coordinate: [number, number]
   description: string
 }

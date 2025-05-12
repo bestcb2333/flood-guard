@@ -17,7 +17,6 @@ apiAxios.interceptors.request.use((config) => {
 
 apiAxios.interceptors.response.use(
   (res) => {
-    ElMessage({type: 'success', message: 'Error'})
     return res.data.data
   },
   (err) => {

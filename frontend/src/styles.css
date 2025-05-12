@@ -34,10 +34,6 @@
   border-radius: 24px;
 }
 
-.el-card__header {
-  font-weight: bold;
-}
-
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

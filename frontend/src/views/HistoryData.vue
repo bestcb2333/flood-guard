@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { History } from '@/tables'
-import { Menu } from '@element-plus/icons-vue'
 import CardTitle from '@/components/CardTitle.vue'
 import { computed, ref, watch } from 'vue'
 import { apiAxios } from '@/axios'
@@ -12,6 +11,8 @@ import {CanvasRenderer} from 'echarts/renderers'
 import VChart from 'vue-echarts'
 import {formatDate} from '@/utils'
 import dayjs from 'dayjs'
+import {useRouteQuery} from '@vueuse/router'
+import {useI18n} from 'vue-i18n'
 
 use([
   LineChart,
@@ -26,20 +27,23 @@ const session = useSessionStore()
 
 const data = ref<History[]>([])
 const total = ref(0)
-const page = ref(1)
-const pageSize = ref(10)
-watch([page, pageSize], async ([page, pageSize]) => {
+const page = useRouteQuery('page', 1, {transform: Number})
+const pageSize = useRouteQuery('page_size', 10, {transform: Number})
+const regionId = useRouteQuery('region_id', 0, {transform: Number})
+watch([page, pageSize, regionId], loadTable, {immediate: true})
+
+async function loadTable() {
   const res = await apiAxios.get<null, {
     data: History[],
     total: number,
   }>('/histories', {params: {
-    page, pageSize,
+    page: page.value,
+    page_size: pageSize.value,
+    region_id: regionId.value,
   }})
   data.value = res.data
   total.value = res.total
-}, {immediate: true})
-
-const option = ref();
+}
 
 interface Trend {
   id: number,
@@ -85,17 +89,40 @@ const trendOptions = computed(() => trends.value.map(trend => ({
     },
   ],
 })))
+
+const {t} = useI18n({messages: {
+  zh: {
+    tableTitle: '历史水位数据列表',
+    createdAt: '创建时间',
+    region: '区域',
+    rainfall: '降水量',
+    waterlevel: '水位',
+    source: '数据源',
+    desctiption: '描述',
+    allRegions: '所有区域',
+  },
+}})
 </script>
 
 <template>
   <div class="h-full flex flex-col md:flex-row gap-2">
 
-    <el-card shadow="never" class="basis-0 grow flex flex-col" body-class="grow overflow-y-auto" footer-class="flex justify-end">
+    <el-card shadow="never" class="basis-0 grow flex flex-col"
+      header-class="flex"
+      body-class="grow overflow-y-auto"
+      footer-class="flex justify-end"
+    >
       <template #header>
-        <card-title :title="$t('data.history.title')" :icon="Menu">
-          <el-button circle :icon="Menu" />
-          <el-button circle :icon="Menu" />
-        </card-title>
+        <div class="text-lg font-bold">
+          {{t('tableTitle')}}
+        </div>
+        <el-select v-model="regionId" class="w-32 ms-auto">
+          <el-option :label="t('allRegions')" :value="0" />
+          <el-option
+            v-for="region in session.regions" :key="region.id"
+            :label="region.name" :value="region.id"
+          />
+        </el-select>
       </template>
 
       <el-table :data="data">

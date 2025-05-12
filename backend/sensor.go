@@ -1,46 +1,56 @@
 package main
 
 import (
+	p "github.com/bestcb2333/gin-gorm-preloader/preloader"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type ListSensorDTO struct {
-	RegionID uint `form:"regionId"`
-	ListDTO
+type ListSensorReq struct {
+	RegionID  uint `form:"region_id"`
+	Available bool `form:"available"`
+	p.PageConfig
 }
 
-func AddSensorRoutes(r *gin.Engine, pbc *PreloaderBaseConfig) {
+func AddSensorRoutes(r *gin.Engine, bc *p.BaseConfig) {
 
-	r.GET("/sensors", CreateListHandler[Sensor](
-		&PreloaderConfig{
-			PreloaderBaseConfig: pbc,
-			Bind:                BindConfig{Query: true},
+	r.GET("/sensors", p.CreateListHandler[Sensor](
+		&p.Config[ListSensorReq]{
+			Base: bc,
+			DefReq: ListSensorReq{
+				RegionID:  0,
+				Available: false,
+				PageConfig: p.PageConfig{
+					Page:     1,
+					PageSize: 10,
+				},
+			},
 		},
-
-		&ListSensorDTO{0, ListDTO{1, 10}},
-		func(query *gorm.DB, c *gin.Context, u *User, dto *ListSensorDTO) *gorm.DB {
+		func(query *gorm.DB, c *gin.Context, u *User, r *ListSensorReq) *gorm.DB {
 			query = query.Preload("Region", Select("id", "name"))
-			if dto.RegionID != 0 {
-				query = query.Where("region_id = ?", dto.RegionID)
+			if r.RegionID != 0 {
+				query = query.Where("region_id = ?", r.RegionID)
 			}
-
+			if r.Available {
+				query = query.Where("available = true")
+			}
 			return query
 		},
 	))
 
-	r.POST("/sensors", CreateAddHandler[Sensor](
-		&PreloaderConfig{
-			PreloaderBaseConfig: pbc,
+	r.POST("/sensors", p.CreateAddHandler[Sensor](
+		&p.Config[SensorDTO]{
+			Base: bc,
 		},
-		new(SensorDTO),
-		func(data *Sensor, u *User, dto *SensorDTO) *Sensor {
+		func(c *gin.Context, u *User, dto *SensorDTO) *Sensor {
+			data := new(Sensor)
 			return data
 		},
 	))
 
-	r.DELETE("/sensors", CreateDeleteHandler[Sensor](&PreloaderConfig{
-		PreloaderBaseConfig: pbc,
-		Bind:                BindConfig{Query: true},
-	}))
+	r.DELETE("/sensors", p.CreateDeleteHandler[Sensor, User](
+		&p.Config[p.DelReq]{
+			Base: bc,
+		},
+	))
 }

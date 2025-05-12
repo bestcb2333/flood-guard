@@ -7,6 +7,7 @@ import (
 func CreateDeleteHandler[T any](
 	pc *PreloaderConfig,
 ) gin.HandlerFunc {
+	pc.Bind = BindConfig{Query: true}
 	return Preload(
 		pc,
 		&DeleteDTO{},

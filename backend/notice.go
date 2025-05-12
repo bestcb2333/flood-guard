@@ -1,42 +1,47 @@
 package main
 
 import (
+	p "github.com/bestcb2333/gin-gorm-preloader/preloader"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type ListNoticeDTO struct {
-	ListDTO
+type ListNoticeReq struct {
+	p.PageConfig
 }
 
-func AddNoticeRoutes(r *gin.Engine, pbc *PreloaderBaseConfig) {
+func AddNoticeRoutes(r *gin.Engine, bc *p.BaseConfig) {
 
-	r.GET("/notices", CreateListHandler[Notice](
-		&PreloaderConfig{
-			PreloaderBaseConfig: pbc,
-			Bind:                BindConfig{Query: true},
+	r.GET("/notices", p.CreateListHandler[Notice](
+		&p.Config[ListNoticeReq]{
+			Base: bc,
+			DefReq: ListNoticeReq{
+				PageConfig: p.PageConfig{
+					Page:     1,
+					PageSize: 10,
+				},
+			},
 		},
-		&ListNoticeDTO{ListDTO{1, 10}},
-		func(query *gorm.DB, c *gin.Context, u *User, dto *ListNoticeDTO) *gorm.DB {
+		func(query *gorm.DB, c *gin.Context, u *User, dto *ListNoticeReq) *gorm.DB {
 			return query
 		},
 	))
 
-	r.POST("/notices", CreateAddHandler[Notice](
-		&PreloaderConfig{
-			PreloaderBaseConfig: pbc,
-			Bind:                BindConfig{Query: true},
+	r.POST("/notices", p.CreateAddHandler[Notice](
+		&p.Config[NoticeDTO]{
+			Base: bc,
 		},
-		new(NoticeDTO),
-		func(data *Notice, u *User, dto *NoticeDTO) *Notice {
+		func(c *gin.Context, u *User, dto *NoticeDTO) *Notice {
+			data := new(Notice)
 			data.UserID = &u.ID
 			return data
 		},
 	))
 
-	r.DELETE("/notices", CreateDeleteHandler[Notice](&PreloaderConfig{
-		PreloaderBaseConfig: pbc,
-		Bind:                BindConfig{Query: true},
-	}))
+	r.DELETE("/notices", p.CreateDeleteHandler[Notice, User](
+		&p.Config[p.DelReq]{
+			Base: bc,
+		},
+	))
 
 }

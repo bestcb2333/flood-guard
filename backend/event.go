@@ -1,46 +1,62 @@
 package main
 
 import (
+	p "github.com/bestcb2333/gin-gorm-preloader/preloader"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
-type ListEventDTO struct {
-	RegionID uint `json:"regionId"`
-	ListDTO
+type ListEventReq struct {
+	RegionID uint   `form:"region_id"`
+	Severity string `form:"severity"`
+	Current  bool   `form:"current"`
+	p.PageConfig
 }
 
-func AddEventRoutes(r *gin.Engine, pbc *PreloaderBaseConfig) {
+func AddEventRoutes(r *gin.Engine, bc *p.BaseConfig) {
 
-	r.GET("/events", CreateListHandler[Event](
-		&PreloaderConfig{
-			PreloaderBaseConfig: pbc,
-			Bind:                BindConfig{Query: true},
+	r.GET("/events", p.CreateListHandler[Event](
+		&p.Config[ListEventReq]{
+			Base: bc,
+			DefReq: ListEventReq{
+				RegionID: 0,
+				Severity: "",
+				Current:  false,
+				PageConfig: p.PageConfig{
+					Page:     1,
+					PageSize: 10,
+				},
+			},
 		},
-		&ListEventDTO{0, ListDTO{1, 10}},
-		func(query *gorm.DB, c *gin.Context, u *User, r *ListEventDTO) *gorm.DB {
+		func(query *gorm.DB, c *gin.Context, u *User, r *ListEventReq) *gorm.DB {
 			query = query.Preload("User", Select("id", "name")).Preload("Region", Select("id", "name"))
 			if r.RegionID != 0 {
 				query = query.Where("region_id = ?", r.RegionID)
+			}
+			if r.Severity != "" {
+				query = query.Where("severity = ?", r.Severity)
+			}
+			if r.Current {
+				query = query.Where("end_time IS NULL")
 			}
 			return query
 		},
 	))
 
-	r.POST("/events", CreateAddHandler[Event](
-		&PreloaderConfig{
-			PreloaderBaseConfig: pbc,
-			Bind:                BindConfig{JSON: true},
+	r.POST("/events", p.CreateAddHandler[Event](
+		&p.Config[EventDTO]{
+			Base: bc,
 		},
-		&EventDTO{},
-		func(data *Event, u *User, dto *EventDTO) *Event {
+		func(c *gin.Context, u *User, dto *EventDTO) *Event {
+			data := new(Event)
 			data.UserID = &u.ID
 			return data
 		},
 	))
 
-	r.DELETE("/events", CreateDeleteHandler[Event](&PreloaderConfig{
-		PreloaderBaseConfig: pbc,
-		Bind:                BindConfig{Query: true},
-	}))
+	r.DELETE("/events", p.CreateDeleteHandler[Event, User](
+		&p.Config[p.DelReq]{
+			Base: bc,
+		},
+	))
 }

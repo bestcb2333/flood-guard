@@ -7,26 +7,33 @@ import { Menu } from '@element-plus/icons-vue'
 import { apiAxios } from '@/axios'
 import {formatDate} from '@/utils'
 import useSessionStore from '@/stores/session'
-
-const region = ref<string|null>(null)
+import {useRouteQuery} from '@vueuse/router'
+import {useI18n} from 'vue-i18n'
 
 // 获取传感器列表
 const sensors = ref<Sensor[]>([])
 const total = ref(0)
-const page = ref(1)
-const pageSize = ref(10)
-watch([region, page, pageSize], async ([region, page, pageSize]) => {
+const page = useRouteQuery('page', 1, {transform: Number})
+const pageSize = useRouteQuery('page_size', 10, {transform: Number})
+const regionId = useRouteQuery('region_id', 0, {transform: Number})
+const available = useRouteQuery<any, boolean>('available', false, {transform: Boolean})
+const isDialogOpen = ref(false)
+watch([page, pageSize, regionId, available], loadTable, {immediate: true})
+
+async function loadTable() {
   const res = await apiAxios.get<any, {
     data: Sensor[],
     total: number,
   }>('/sensors', {params: {
-    region, page, pageSize,
+    region_id: regionId.value,
+    page: page.value,
+    page_size: pageSize.value,
+    available: available.value,
   }})
   sensors.value = res.data
   total.value = res.total
-}, {immediate: true})
+}
 
-const isDialogOpen = ref(false)
 const addForm = reactive({
   name: '',
   coordinate: [0, 0],
@@ -36,27 +43,47 @@ const addForm = reactive({
 })
 
 const session = useSessionStore()
+
+const {t} = useI18n({messages: {
+  zh: {
+    title: '传感器管理系统',
+    allRegions: '所有区域',
+    allSensors: '所有传感器',
+    availableOnly: '仅可用传感器',
+  },
+}})
 </script>
 
 <template>
   <div class="h-full md:grid md:grid-cols-2 md:grid-rows-[auto_1fr] md:gap-2 max-md:space-y-2 max-md:overflow-y-auto">
-      <card-title class="md:col-span-2 p-4" :title="$t('resource.sensor.dashTitle')" :icon="Menu">
-      </card-title>
+      <div class="md:col-span-2 p-4 flex justify-between">
+        <div class="text-xl font-bold">{{t('title')}}</div>
+        <el-button round type="primary" @click="isDialogOpen=true">
+          {{$t('sensor.add')}}
+        </el-button>
+      </div>
 
       <el-card
         shadow="never"
         class="grow flex flex-col"
         body-class="grow overflow-y-auto"
-        header-class="flex justify-between"
+        header-class="flex"
         footer-class="flex justify-end"
       >
         <template #header>
           <div class="font-bold text-xl">
             {{$t('resource.sensor.tableTitle')}}
           </div>
-          <el-button round type="primary" @click="isDialogOpen=true">
-            {{$t('sensor.add')}}
-          </el-button>
+          <el-select v-model="regionId" class="ms-auto w-32">
+            <el-option :label="t('allRegions')" :value="0" />
+            <el-option
+              v-for="region in session.regions" :key="region.id"
+              :label="region.name" :value="region.id"
+            />
+          </el-select>
+          <el-switch v-model="available" inline-prompt class="ms-2"
+            :active-text="t('availableOnly')" :inactive-text="t('allSensors')"
+          />
         </template>
 
         <el-table :data="sensors">

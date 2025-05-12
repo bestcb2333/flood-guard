@@ -12,7 +12,7 @@ type UploadEventDTO struct {
 	FH          *multipart.FileHeader `form:"file"`
 	StartTime   time.Time             `form:"startTime"`
 	EndTime     time.Time             `form:"endTine"`
-	Severity    uint                  `form:"severity"`
+	Severity    string                `form:"severity"`
 	Description string                `form:"description"`
 }
 
