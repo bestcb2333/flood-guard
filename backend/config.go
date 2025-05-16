@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Port   string `env:"PORT" def:"8080"`
-	JWTKey string `env:"JWT_KEY"`
-	SSL    SSLConfig
-	DB     DBConfig
-	SMTP   SMTPConfig
+	Port        string `env:"PORT" def:"8080"`
+	JWTKey      string `env:"JWT_KEY"`
+	DeepSeekAPI string `env:"DEEPSEEK_API"`
+	SSL         SSLConfig
+	DB          DBConfig
+	SMTP        SMTPConfig
 }
 
 type SSLConfig struct {

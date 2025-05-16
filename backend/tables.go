@@ -58,7 +58,7 @@ type User struct {
 	Avatar   string    `json:"avatar" gorm:"type:VARCHAR(50);not null;comment:头像路径"`
 	Profile  string    `json:"profile" gorm:"type:VARCHAR(200);not null;comment:个人简介"`
 	Admin    bool      `json:"admin" gorm:"not null;comment:是管理员"`
-	RegionID *uint     `json:"-" gorm:"index;comment:志愿服务的区域"`
+	RegionID *uint     `json:"regionId" gorm:"index;comment:志愿服务的区域"`
 	Region   *Region   `json:"region"`
 	Notices  []Notice  `json:"notices" gorm:"constraint:OnDelete:SET NULL"`
 	Events   []Event   `json:"events" gorm:"constraint:OnDelete:SET NULL"`
@@ -89,7 +89,7 @@ type Region struct {
 // 内涝事件
 type EventDTO struct {
 	Name        string     `json:"name" gorm:"type:VARCHAR(20);not null;unique;comment:事件名称"`
-	RegionID    uint       `json:"-" gorm:"not null;index;comment:所在区域ID"`
+	RegionID    uint       `json:"regionId" gorm:"not null;index;comment:所在区域ID"`
 	StartTime   time.Time  `json:"startTime" gorm:"not null;comment:开始时间"`
 	EndTime     *time.Time `json:"endTime" gorm:"comment:结束时间"`
 	Severity    string     `json:"severity" gorm:"type:VARCHAR(20);not null;comment:严重性"`
@@ -100,15 +100,15 @@ type EventDTO struct {
 type Event struct {
 	IDField
 	CreatedAtField
-	EventDTO
+	*EventDTO
 	Region *Region `json:"region" gorm:"constraint:OnDelete:CASCADE"`
-	UserID *uint   `json:"-" gorm:"index;comment:上传的用户ID"`
+	UserID *uint   `json:"userId" gorm:"index;comment:上传的用户ID"`
 	User   *User   `json:"user"`
 }
 
 // 历史数据
 type HistoryDTO struct {
-	RegionID    uint     `json:"-" gorm:"not null;index;comment:相关的区域ID"`
+	RegionID    uint     `json:"regionId" gorm:"not null;index;comment:相关的区域ID"`
 	Rainfall    *float64 `json:"rainfall,omitempty" gorm:"comment:降水量"`
 	Waterlevel  *float64 `json:"waterlevel,omitempty" gorm:"comment:水位"`
 	Source      string   `json:"source,omitempty" gorm:"type:VARCHAR(20);not null;comment:数据源"`
@@ -127,7 +127,7 @@ type ResourceDTO struct {
 	Type       string    `json:"type" gorm:"type:VARCHAR(20);not null;comment:资源类型"`
 	Name       string    `json:"name" gorm:"type:VARCHAR(50);not null;comment:资源名称"`
 	Quantity   uint      `json:"quantity" gorm:"not null;comment:数量"`
-	RegionID   uint      `json:"-" gorm:"not null;index;comment:所在的区域ID"`
+	RegionID   uint      `json:"regionId" gorm:"not null;index;comment:所在的区域ID"`
 	Coordinate orb.Point `json:"coordinate" gorm:"type:JSON;serializer:json;not null;comment:坐标"`
 	Available  bool      `json:"available" gorm:"not null;comment:是否可用"`
 }
@@ -149,8 +149,8 @@ type Notice struct {
 	IDField
 	CreatedAtField
 	UpdatedAtField
-	NoticeDTO
-	UserID *uint `json:"-" gorm:"index;comment:编写者ID"`
+	*NoticeDTO
+	UserID *uint `json:"userId" gorm:"index;comment:编写者ID"`
 	User   *User `json:"user"`
 }
 
@@ -160,13 +160,13 @@ type SensorDTO struct {
 	Coordinate  orb.Point `json:"coordinate" gorm:"type:JSON;serializer:json;not null;comment:坐标"`
 	Description string    `json:"description" gorm:"type:VARCHAR(200);not null;comment:描述"`
 	Available   bool      `json:"available" gorm:"not null;comment:是否可用"`
-	RegionID    uint      `json:"-" gorm:"not null;index;comment:所在的区域ID"`
+	RegionID    uint      `json:"regionId" gorm:"not null;index;comment:所在的区域ID"`
 }
 
 type Sensor struct {
 	IDField
 	CreatedAtField
-	SensorDTO
+	*SensorDTO
 	Region Region `json:"region"`
 }
 
@@ -180,6 +180,6 @@ type Message struct {
 	IDField
 	CreatedAtField
 	MessageDTO
-	UserID uint `json:"-" gorm:"not null;index;comment:发起的用户ID"`
+	UserID uint `json:"regionId" gorm:"not null;index;comment:发起的用户ID"`
 	User   User `json:"user"`
 }

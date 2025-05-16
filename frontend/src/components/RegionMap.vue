@@ -154,9 +154,9 @@ const chartOption = computed(() => {
             <div>
               <strong>${properties.name || 'Unknown'}</strong><br/>
               ${properties.description ? `<div>${properties.description}</div>` : ''}
-              ${properties.altitude !== null ? `<div>Altitude: ${properties.altitude}</div>` : ''}
-              ${properties.drainage !== null ? `<div>Drainage: ${properties.drainage}</div>` : ''}
-              ${properties.forecast !== null ? `<div>Forecast: ${properties.forecast}</div>` : ''}
+              ${properties.altitude !== null ? `<div>区域海拔指数: ${properties.altitude}</div>` : ''}
+              ${properties.drainage !== null ? `<div>排水完善指数: ${properties.drainage}</div>` : ''}
+              ${properties.forecast !== null ? `<div>预报雨量指数: ${properties.forecast}</div>` : ''}
             </div>
           `
         } else if (params.seriesType === 'scatter') {

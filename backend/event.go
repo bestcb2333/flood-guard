@@ -45,11 +45,13 @@ func AddEventRoutes(r *gin.Engine, bc *p.BaseConfig) {
 
 	r.POST("/events", p.CreateAddHandler[Event](
 		&p.Config[EventDTO]{
-			Base: bc,
+			Base:       bc,
+			Permission: p.Login,
 		},
 		func(c *gin.Context, u *User, dto *EventDTO) *Event {
 			data := new(Event)
 			data.UserID = &u.ID
+			data.EventDTO = dto
 			return data
 		},
 	))

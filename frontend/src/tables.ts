@@ -10,7 +10,7 @@ export interface User {
   region: Region | null
   notices: Notice[]
   events: Event[]
-  analyses: Analysis[]
+  messages: Message[]
 }
 
 export interface Region {
@@ -87,10 +87,11 @@ export interface Sensor {
   region: Region
 }
 
-export interface Analysis {
+export interface Message {
   id: number
   createdAt: Date
   user: User
+  userId: number
   role: string
   content: string
 }

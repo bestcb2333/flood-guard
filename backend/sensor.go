@@ -44,6 +44,7 @@ func AddSensorRoutes(r *gin.Engine, bc *p.BaseConfig) {
 		},
 		func(c *gin.Context, u *User, dto *SensorDTO) *Sensor {
 			data := new(Sensor)
+			data.SensorDTO = dto
 			return data
 		},
 	))

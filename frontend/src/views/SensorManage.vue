@@ -18,6 +18,9 @@ const pageSize = useRouteQuery('page_size', 10, {transform: Number})
 const regionId = useRouteQuery('region_id', 0, {transform: Number})
 const available = useRouteQuery<any, boolean>('available', false, {transform: Boolean})
 const isDialogOpen = ref(false)
+const isSelectMode = ref(false)
+const selected = ref<number[]>([])
+
 watch([page, pageSize, regionId, available], loadTable, {immediate: true})
 
 async function loadTable() {
@@ -38,7 +41,7 @@ const addForm = reactive({
   name: '',
   coordinate: [0, 0],
   available: true,
-  region: 1,
+  regionId: 1,
   description: '',
 })
 
@@ -50,8 +53,27 @@ const {t} = useI18n({messages: {
     allRegions: '所有区域',
     allSensors: '所有传感器',
     availableOnly: '仅可用传感器',
+    selectMode: '选择模式',
+    viewMode: '查看模式',
+    deleteSelected: '删除所选项',
   },
 }})
+
+async function deleteSelected() {
+  try {
+    await apiAxios.delete('/sensors', {params: {id: selected.value}})
+    await loadTable()
+    isSelectMode.value = false
+  } catch {}
+}
+
+async function addSensor() {
+  try {
+    await apiAxios.post('/sensors', addForm)
+    await loadTable()
+    isDialogOpen.value = false
+  } catch {}
+}
 </script>
 
 <template>
@@ -81,12 +103,19 @@ const {t} = useI18n({messages: {
               :label="region.name" :value="region.id"
             />
           </el-select>
+          <el-button v-if="isSelectMode" type="danger" round @click="deleteSelected" class="ms-2">
+            {{t('deleteSelected')}}
+          </el-button>
+          <el-switch v-model="isSelectMode" inline-prompt class="ms-2"
+            :active-text="t('selectMode')" :inactive-text="t('viewMode')"
+          />
           <el-switch v-model="available" inline-prompt class="ms-2"
             :active-text="t('availableOnly')" :inactive-text="t('allSensors')"
           />
         </template>
 
-        <el-table :data="sensors">
+        <el-table :data="sensors" @selection-change="(vals:Sensor[])=>selected=vals.map(val=>val.id)">
+          <el-table-column type="selection" v-if="isSelectMode" />
           <el-table-column
             :label="$t('data.sensors.createdAt')"
             prop="createdAt"
@@ -134,7 +163,7 @@ const {t} = useI18n({messages: {
         <el-switch v-model="addForm.available" />
       </el-form-item>
       <el-form-item :label="$t('sensor.region')">
-        <el-select v-model="addForm.region">
+        <el-select v-model="addForm.regionId">
           <el-option
             v-for="region in session.regions"
             :key="region.id"
@@ -147,7 +176,7 @@ const {t} = useI18n({messages: {
         <el-input type="textarea" v-model="addForm.description" />
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" round class="ms-auto">
+        <el-button type="primary" round class="ms-auto" @click="addSensor">
           {{$t('global.confirm')}}
         </el-button>
         <el-button round @click="isDialogOpen=false">
@@ -157,5 +186,3 @@ const {t} = useI18n({messages: {
     </el-form>
   </el-dialog>
 </template>
-
-<style scoped></style>

@@ -3,24 +3,46 @@ import CardTitle from '@/components/CardTitle.vue'
 import type { Notice } from '@/tables'
 import { computed, reactive, ref } from 'vue'
 import RegionMap from '@/components/RegionMap.vue'
-import { MapLocation, Plus, Stopwatch } from '@element-plus/icons-vue'
+import { MapLocation, Stopwatch } from '@element-plus/icons-vue'
 import { apiAxios } from '@/axios'
 import type {EChartsOption} from 'echarts'
 import VChart from 'vue-echarts'
+import {useI18n} from 'vue-i18n'
+import {use} from 'echarts/core'
+import {GridComponent, TooltipComponent} from 'echarts/components'
+import {BarChart} from 'echarts/charts'
+import {CanvasRenderer} from 'echarts/renderers'
+import {watch} from 'vue'
+
+use([
+  GridComponent,
+  BarChart,
+  CanvasRenderer,
+  TooltipComponent,
+])
 
 // 获取公告列表
 const notices = ref<Notice[]>([])
-const count = ref(0)
+const total = ref(0)
+const page = ref(1)
+const pageSize = ref(10)
 const noticeStatus = ref<number | boolean>(false)
-apiAxios.get<any, {
-  data: Notice[],
-  count: number,
-}>('/notices', {params: {
-  page: 1,
-}}).then(res => {
-  notices.value = res.data
-  count.value = res.count
-}).catch(() => {})
+
+watch([page, pageSize], loadNotice, {immediate: true})
+
+async function loadNotice() {
+  try {
+    const res = await apiAxios.get<any, {
+      data: Notice[],
+      total: number,
+    }>('/notices', {params: {
+      page: page.value,
+      page_size: pageSize.value,
+    }})
+    notices.value = res.data
+    total.value = res.total
+  } catch {}
+}
 
 interface Factor {
   name: string,
@@ -37,6 +59,12 @@ const barOption = computed((): EChartsOption => ({
     type: 'category',
     data: factors.value.map(factor => factor.name),
   },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow',
+    },
+  },
   yAxis: {
     type: 'value',
   },
@@ -48,7 +76,7 @@ const barOption = computed((): EChartsOption => ({
   ],
 }))
 
-const isDialogOpen = ref(false)
+const isAddDialogOpen = ref(false)
 const addNoticeForm = reactive({
   title: '',
   content: '',
@@ -56,11 +84,33 @@ const addNoticeForm = reactive({
 
 async function addNotice() {
   try {
-    const res = await apiAxios.post<any, Notice>('/notices', addNoticeForm)
-    notices.value.push(res)
+    await apiAxios.post<any, Notice>('/notices', addNoticeForm)
+    await loadNotice()
+    isAddDialogOpen.value = false
   } catch {}
 }
 
+const isViewDialogOpen = ref(false)
+const {t} = useI18n({messages: {
+  zh: {
+    viewDialogTitle: '查看公告',
+  },
+}})
+
+function viewNotice(notice: Notice) {
+  currentNotice.value = notice
+  isViewDialogOpen.value = true
+}
+
+const currentNotice = ref<Notice|null>(null)
+
+async function deleteNotice() {
+  try {
+    await apiAxios.delete('/notices', {params: {id: currentNotice.value?.id}})
+    await loadNotice()
+    isViewDialogOpen.value = false
+  } catch {}
+}
 </script>
 
 <template>
@@ -119,11 +169,11 @@ async function addNotice() {
         <div class="text-xl font-bold">
           {{$t('dashboard.noticeTitle')}}
         </div>
-        <el-button round type="primary" @click="isDialogOpen=true">
+        <el-button round type="primary" @click="isAddDialogOpen=true">
           {{$t('dashboard.add')}}
         </el-button>
       </template>
-      <el-card v-for="notice in notices" :key="notice.id" shadow="hover">
+      <el-card v-for="notice in notices" :key="notice.id" shadow="hover" @click="viewNotice(notice)">
         <div class="font-bold text-lg">
           {{ notice.title }}
         </div>
@@ -131,11 +181,17 @@ async function addNotice() {
           {{ notice.content }}
         </div>
       </el-card>
+
+      <template #footer>
+        <el-pagination layout="sizes, prev, pager, next, total" :total="total"
+          v-model:current-page="page" v-model:page-size="pageSize"
+        />
+      </template>
     </el-card>
 
   </div>
 
-  <el-dialog v-model="isDialogOpen" :title="$t('dashboard.add')">
+  <el-dialog v-model="isAddDialogOpen" :title="$t('dashboard.add')">
     <el-form :model="addNoticeForm">
       <el-form-item :label="$t('dashboard.title')">
         <el-input v-model="addNoticeForm.title" />
@@ -147,10 +203,26 @@ async function addNotice() {
         <el-button type="primary" round class="ms-auto" @click="addNotice">
           {{$t('global.confirm')}}
         </el-button>
-        <el-button round @click="isDialogOpen=false">
+        <el-button round @click="isAddDialogOpen=false">
           {{$t('global.cancel')}}
         </el-button>
       </el-form-item>
     </el-form>
+  </el-dialog>
+  <el-dialog v-model="isViewDialogOpen" :title="t('viewDialogTitle')">
+    <div v-if="currentNotice">
+      <div class="text-lg font-bold">
+        {{currentNotice.title}}
+      </div>
+      <div v-if="currentNotice.user">
+        作者：{{currentNotice.user.name}}
+      </div>
+      <div>
+        {{currentNotice.content}}
+      </div>
+    </div>
+    <el-button type="danger" @click="deleteNotice">
+      删除公告
+    </el-button>
   </el-dialog>
 </template>

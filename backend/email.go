@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/smtp"
 	"os"
@@ -18,18 +19,20 @@ type MailData struct {
 	Location   string
 }
 
-var EmailCodeData struct {
-	Data map[string]EmailCodeDataValue
-	Mu   sync.Mutex
-}
-
 type EmailCodeDataValue struct {
 	Code       string
 	Expiration time.Time
 }
 
 type SendEmailDTO struct {
-	Email string `form:"email"`
+	Email string `uri:"email"`
+}
+
+var EmailCodeData = struct {
+	Data map[string]EmailCodeDataValue
+	Mu   sync.Mutex
+}{
+	Data: make(map[string]EmailCodeDataValue),
 }
 
 // 生成邮件内容体的函数
@@ -70,10 +73,12 @@ func getMailBody(maildata *MailData) ([]byte, error) {
 
 func AddSendEmailRoutes(r *gin.Engine, pbc *PreloaderBaseConfig, config *SMTPConfig) {
 
-	r.GET("/email/:id", Preload(
+	r.GET("/email/:email", Preload(
 		&PreloaderConfig{Bind: BindConfig{Param: true}},
 		&SendEmailDTO{},
 		func(c *gin.Context, _ *User, r *SendEmailDTO) {
+
+			fmt.Println(r.Email)
 
 			if ok := isValidEmail(r.Email); !ok {
 				c.JSON(400, Resp("邮箱格式有误", nil, nil))

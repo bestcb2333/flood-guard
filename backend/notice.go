@@ -29,11 +29,13 @@ func AddNoticeRoutes(r *gin.Engine, bc *p.BaseConfig) {
 
 	r.POST("/notices", p.CreateAddHandler[Notice](
 		&p.Config[NoticeDTO]{
-			Base: bc,
+			Base:       bc,
+			Permission: p.Login,
 		},
 		func(c *gin.Context, u *User, dto *NoticeDTO) *Notice {
 			data := new(Notice)
 			data.UserID = &u.ID
+			data.NoticeDTO = dto
 			return data
 		},
 	))

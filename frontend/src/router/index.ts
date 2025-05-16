@@ -95,6 +95,11 @@ const router = createRouter({
         icon: Setting,
       },
     },
+    {
+      path: '/myinfo',
+      name: 'myinfo',
+      component: () => import('@/views/MyInfo.vue'),
+    },
   ],
 })
 

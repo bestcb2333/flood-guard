@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import CardTitle from '@/components/CardTitle.vue'
 import type { Resource } from '@/tables'
 import { MapLocation, Menu } from '@element-plus/icons-vue'
@@ -15,7 +15,8 @@ const types = [
 ]
 
 const resources = ref<Resource[]>([])
-const isAddResource = ref(false)
+const batchManage = ref(false)
+const selected = ref<number[]>([])
 const total = ref(0)
 const page = useRouteQuery('page', 1, {transform: Number})
 const pageSize = useRouteQuery('page_size', 10, {transform: Number})
@@ -26,7 +27,7 @@ const available = useRouteQuery<any, boolean>('available', false, {transform: Bo
 watch([page, pageSize, type, regionId, available], loadTable, {immediate: true})
 
 const isDialogOpen = ref(false)
-const addForm = ref({
+const addForm = reactive({
   type: '',
   name: '',
   quantity: 0,
@@ -39,15 +40,31 @@ async function loadTable() {
   const res = await apiAxios.get<any, {
     data: Resource[],
     total: number,
-  }>(`/resources?page=${page.value}&page_size=${pageSize.value}&type=${type.value}&region_id=${regionId.value}&available=${available.value}`)
+  }>('/resources', {params: {
+    page: page.value,
+    page_size: pageSize.value,
+    type: type.value,
+    region_id: regionId.value,
+    available: available.value,
+  }})
   resources.value = res.data
   total.value = res.total
 }
 
-async function addResource() {
+async function deleteSelected() {
   try {
-    const res = await apiAxios.post<any, Resource>('/resources', addForm)
-    resources.value.push(res)
+    await apiAxios.delete('/resources', {params: {id: selected.value}})
+    await loadTable()
+    batchManage.value = false
+  } catch {}
+}
+
+async function addResource() {
+ console.log(1)
+  try {
+    await apiAxios.post('/resources', addForm)
+    await loadTable()
+    isDialogOpen.value = false
   } catch {}
 }
 
@@ -72,6 +89,9 @@ const {t} = useI18n({messages: {
     supply: '生活保障资源',
     others: '其他资源',
     allRegion: '所有区域',
+    editingMode: '编辑模式',
+    viewMode: '查看模式',
+    deleteSelected: '删除所选项',
   },
 }})
 </script>
@@ -82,34 +102,7 @@ const {t} = useI18n({messages: {
       <el-segmented :options="['all',...types].map(type=>({label:t(type),value:type}))" v-model="type" />
     </card-title>
 
-    <el-card shadow="never" v-if="isAddResource">
-      <template #header>
-        <card-title :title="$t('resource.add')">
-          <el-button type=success round @click="isAddResource=false">
-            {{$t('resource.table.title')}}
-          </el-button>
-        </card-title>
-      </template>
-      <el-form>
-        <el-form-item :label="$t('resource.name')">
-          <el-input />
-        </el-form-item>
-        <el-form-item :label="$t('resource.quantity')">
-        </el-form-item>
-        <el-form-item :label="$t('resource.region')">
-
-        </el-form-item>
-        <el-form-item :label="$t('resource.coordinate')">
-
-        </el-form-item>
-        <el-form-item :label="$t('resource.available')">
-
-        </el-form-item>
-      </el-form>
-    </el-card>
-
     <el-card
-      v-else
       shadow="never"
       class="grow flex flex-col"
       header-class="flex"
@@ -127,7 +120,13 @@ const {t} = useI18n({messages: {
             :label="region.name" :value="region.id"
           />
         </el-select>
-        <el-switch v-model="available" class="ms-2"
+        <el-button type="danger" v-if="batchManage" round class="ms-2" @click="deleteSelected">
+          {{t('deleteSelected')}}
+        </el-button>
+        <el-switch class="ms-2" v-model="batchManage" inline-prompt
+          :active-text="t('editingMode')" :inactive-text="t('viewMode')"
+        />
+        <el-switch v-model="available" class="ms-2" inline-prompt
           :active-text="t('availableOnly')" :inactive-text="t('all')"
         />
         <el-button round @click="isDialogOpen=true" class="ms-2">
@@ -135,7 +134,9 @@ const {t} = useI18n({messages: {
         </el-button>
       </template>
 
-      <el-table :data="resources">
+      <el-table :data="resources" @selection-change="(vals:Resource[])=>selected=vals.map(val=>val.id)">
+
+        <el-table-column v-if="batchManage" type="selection" />
 
         <el-table-column
           :label="$t('resource.updatedAt')"
@@ -182,7 +183,10 @@ const {t} = useI18n({messages: {
       </el-form-item>
       <el-form-item :label="$t('resource.type')">
         <el-select v-model="addForm.type">
-
+          <el-option
+            v-for="type in types" :key="type"
+            :label="t(type)" :value="type"
+          />
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('resource.quantity')">

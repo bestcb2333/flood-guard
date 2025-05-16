@@ -30,6 +30,8 @@ const total = ref(0)
 const page = useRouteQuery('page', 1, {transform: Number})
 const pageSize = useRouteQuery('page_size', 10, {transform: Number})
 const regionId = useRouteQuery('region_id', 0, {transform: Number})
+const selected = ref<number[]>([])
+const batchManage = ref(false)
 watch([page, pageSize, regionId], loadTable, {immediate: true})
 
 async function loadTable() {
@@ -90,6 +92,14 @@ const trendOptions = computed(() => trends.value.map(trend => ({
   ],
 })))
 
+async function deleteSelected() {
+  try {
+    await apiAxios.delete('/histories', {params: {id: selected}})
+    batchManage.value = false
+    loadTable()
+  } catch {}
+}
+
 const {t} = useI18n({messages: {
   zh: {
     tableTitle: '历史水位数据列表',
@@ -100,6 +110,9 @@ const {t} = useI18n({messages: {
     source: '数据源',
     desctiption: '描述',
     allRegions: '所有区域',
+    viewMode: '查看模式',
+    editingMode: '编辑模式',
+    deleteSelected: '删除所选项',
   },
 }})
 </script>
@@ -123,9 +136,16 @@ const {t} = useI18n({messages: {
             :label="region.name" :value="region.id"
           />
         </el-select>
+        <el-button type="danger" @click="deleteSelected" v-if="batchManage" class="ms-2" round>
+          {{t('deleteSelected')}}
+        </el-button>
+        <el-switch v-model="batchManage" inline-prompt class="ms-2"
+          :active-text="t('editingMode')" :inactive-text="t('viewMode')"
+        />
       </template>
 
-      <el-table :data="data">
+      <el-table :data="data" highlight-current-row @current-change="(vals:History[])=>selected=vals.map(val=>val.id)">
+        <el-table-column type="selection" v-if="batchManage" />
         <el-table-column
           :label="$t('data.history.createdAt')"
           prop="createdAt"

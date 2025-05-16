@@ -20,6 +20,8 @@ const severity = useRouteQuery('severity', '')
 const page = useRouteQuery('page', 1, {transform: Number})
 const pageSize = useRouteQuery('page_size', 10, {transform: Number})
 const current = useRouteQuery<any, boolean>('current', false, {transform: Boolean})
+const isSelectedMode = ref(false)
+const selected = ref<number[]>([])
 
 const events = ref<Event[]>([])
 const total = ref(0)
@@ -59,11 +61,28 @@ const uploadForm = reactive({
   endTime: new Date(),
   name: '',
   desctiption: '',
-  region: 1,
-  severity: 0,
+  regionId: 1,
+  severity: 'low',
+  coordinate: [114, 30],
 })
 
+async function addEvent() {
+  try {
+    await apiAxios.post('/events', uploadForm)
+    await loadTable()
+    isDialogOpen.value = false
+  } catch {}
+}
+
 const session = useSessionStore()
+
+async function deleteSelected() {
+  try {
+    await apiAxios.delete('/events', {params: {id: selected.value}})
+    await loadTable()
+    isSelectedMode.value = false
+  } catch {}
+}
 
 const {t} = useI18n({messages: {
   zh: {
@@ -81,6 +100,10 @@ const {t} = useI18n({messages: {
     high: '高风险',
     current: '仅当前事件',
     allEvents: '所有事件',
+    viewMode: '查看模式',
+    selectMode: '选择模式',
+    deleteSelected: '删除所选项',
+    coordinate: '坐标',
   },
 }})
 </script>
@@ -107,6 +130,12 @@ const {t} = useI18n({messages: {
           <el-switch v-model="current" inline-prompt :active-text="t('current')"
             :inactive-text="t('allEvents')" size="large" class="ms-auto"
           />
+          <el-button type="danger" round v-if="isSelectedMode" @click="deleteSelected" class="ms-2">
+            {{t('deleteSelected')}}
+          </el-button>
+          <el-switch v-model="isSelectedMode" class="ms-2" inline-prompt
+            :active-text="t('selectMode')" :inactive-text="t('viewMode')"
+          />
           <el-select class="w-32 ms-2" v-model="severity">
             <el-option :label="t('allEvents')" value="" />
             <el-option v-for="severity in severities" :key="severity"
@@ -115,7 +144,10 @@ const {t} = useI18n({messages: {
           </el-select>
         </template>
 
-        <el-table :data="events" highlight-current-row @current-change="val => currentRow = val">
+        <el-table :data="events" highlight-current-row @current-change="val=>currentRow=val"
+          @selection-change="(vals:Event[])=>selected=vals.map(val=>val.id)"
+        >
+          <el-table-column v-if="isSelectedMode" type="selection" />
           <el-table-column
             :label="$t('event.startTime')"
             prop="startTime"
@@ -192,7 +224,7 @@ const {t} = useI18n({messages: {
         <el-input v-model="uploadForm.name" />
       </el-form-item>
       <el-form-item :label="$t('event.region')">
-        <el-select v-model="uploadForm.region">
+        <el-select v-model="uploadForm.regionId">
           <el-option
             v-for="region in session.regions"
             :key="region.id"
@@ -206,7 +238,7 @@ const {t} = useI18n({messages: {
           <el-option
             v-for="severity in severities"
             :key="severity"
-            :label="t('severity')"
+            :label="t(severity)"
             :value="severity"
           />
         </el-select>
@@ -214,8 +246,12 @@ const {t} = useI18n({messages: {
       <el-form-item :label="$t('event.description')">
         <el-input v-model="uploadForm.desctiption" type="textarea" />
       </el-form-item>
+      <el-form-item :label="t('coordinate')">
+        <el-input-number v-model="uploadForm.coordinate[0]" />
+        <el-input-number class="ms-2" v-model="uploadForm.coordinate[1]" />
+      </el-form-item>
       <el-form-item>
-        <el-button round type="primary" class="ms-auto">
+        <el-button round type="primary" class="ms-auto" @click="addEvent">
           {{$t('global.confirm')}}
         </el-button>
         <el-button round @click="isDialogOpen=false">

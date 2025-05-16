@@ -48,11 +48,12 @@ func GetRouter(db *gorm.DB, config *Config) *gin.Engine {
 	}
 
 	r.GET("/ping", Ping)
-	r.GET("/captcha", GetCaptcha)
 
-	AddSignupRoutes(r, pbc)
+	RegCaptchahandler(r, bc, config)
+	RegGetMyinfoHandler(r, bc)
+	AddSignupRoutes(r, bc)
 	AddFactorRoute(r, pbc)
-	AddLoginRoutes(r, pbc)
+	AddLoginRoutes(r, bc)
 	AddSendEmailRoutes(r, pbc, &config.SMTP)
 	AddHistoryTrendRoutes(r, pbc)
 
@@ -63,6 +64,7 @@ func GetRouter(db *gorm.DB, config *Config) *gin.Engine {
 	AddNoticeRoutes(r, bc)
 	AddSensorRoutes(r, bc)
 	AddResourceRoutes(r, bc)
+	RegDeepSeekhandler(r, bc, config)
 
 	return r
 }

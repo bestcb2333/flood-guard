@@ -194,7 +194,7 @@ export default {
   },
   staff: {
     title: '人员与志愿者管理',
-    volunteersMap: '志愿者地图',
+    volunteersMap: '志愿者分布饼图',
     becomeVolunteer: '加入志愿者',
     list: '用户列表',
     onlyVolunteers: '仅显示志愿者',

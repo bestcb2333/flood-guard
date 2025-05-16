@@ -1,22 +1,27 @@
 package main
 
 import (
+	p "github.com/bestcb2333/gin-gorm-preloader/preloader"
 	"github.com/dchest/captcha"
 	"github.com/gin-gonic/gin"
 )
 
-func GetCaptcha(c *gin.Context) {
+func RegCaptchahandler(r *gin.Engine, bc *p.BaseConfig, cfg *Config) {
 
-	id := captcha.New()
-	c.Header("Content-Type", "image/png")
-	c.Header("X-Captcha-Id", id)
+	r.GET("/captcha", func(c *gin.Context) {
 
-	if err := captcha.WriteImage(
-		c.Writer, id, captcha.StdWidth, captcha.StdHeight,
-	); err != nil {
-		c.JSON(500, Resp("验证码绘制失败", err, nil))
-		return
-	}
+		id := captcha.New()
+		c.Header("Content-Type", "image/png")
+		c.Header("X-Captcha-Id", id)
+
+		if err := captcha.WriteImage(
+			c.Writer, id, captcha.StdWidth, captcha.StdHeight,
+		); err != nil {
+			c.JSON(500, Resp("验证码绘制失败", err, nil))
+			return
+		}
+	})
+
 }
 
 func AuthCaptcha(c *gin.Context) {
